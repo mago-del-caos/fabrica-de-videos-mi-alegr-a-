@@ -96,6 +96,19 @@
     <button class="boton" id="btn-probar">Probar clave y continuar</button>
     <p class="estado" id="estado-clave"></p>
     <p class="centro"><a href="#" id="sin-clave">Usar sin clave (escribo el guion a mano)</a></p>
+
+    <hr style="border:none;border-top:1px dashed #d8cfc0;margin:16px 0">
+    <label for="clave-voz">Clave de voz (opcional, de Gemini)</label>
+    <p class="nota">La narración en <b>español nativo</b> la genera Gemini. La voz de Groq
+    es en inglés (leerá el español con acento). Si pones aquí una clave de Gemini, la voz
+    sale en español aunque tu clave principal sea de Groq. Se consigue gratis en
+    <a class="enlace" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</p>
+    <input type="password" id="clave-voz" placeholder="Clave de Google AI Studio" autocomplete="off">
+    <div class="controles">
+      <button class="boton secundario" id="btn-clave-voz">Guardar clave de voz</button>
+      <button class="boton secundario" id="btn-quitar-voz" style="display:none">Quitar</button>
+    </div>
+    <p class="estado" id="estado-clave-voz"></p>
   </section>
 
   <!-- ============ PANTALLA 2: LA FÁBRICA ============ -->
@@ -317,7 +330,7 @@
    ===================================================================== */
 const W = 720, H = 1280;
 const $ = id => document.getElementById(id);
-const LS_CLAVE = "fabrica_clave", LS_PROV = "fabrica_proveedor";
+const LS_CLAVE = "fabrica_clave", LS_PROV = "fabrica_proveedor", LS_VOZ = "fabrica_clave_voz";
 
 const PAL = {
   blanco:"#ffffff", negro:"#111111", mint:"#cdeeda", mint2:"#b9e4cc",
@@ -2494,6 +2507,7 @@ let spec = null;
 let proveedor = localStorage.getItem(LS_PROV) || "groq";
 let clave = localStorage.getItem(LS_CLAVE) || "";
 let sinClave = localStorage.getItem(LS_SIN) === "1";
+let claveVoz = localStorage.getItem(LS_VOZ) || "";
 let duraciones = [];
 let reproduciendo = false, tiempoActual = 0, escenaActual = -1, rafId = null, ultimoTs = 0;
 let musicaActiva = null, vozElegida = "auto";
@@ -2838,6 +2852,7 @@ function setProgresoRapido(pct, texto){
   $("info-rapido").textContent = texto;
 }
 async function crearVideoRapido(){
+  desbloquearAudio();
   const est = $("estado-rapido");
   const prompt = $("prompt-rapido").value.trim();
   if (sinClave || !clave){
@@ -2890,7 +2905,7 @@ async function crearVideoRapido(){
     dl.textContent = "⬇ Descargar video (" + res.mb + " MB)";
     $("progreso-rapido").classList.add("oculto");
     $("resultado-rapido").classList.remove("oculto");
-    est.textContent = res.voz ? "✓ Tu video está listo, con voz y música." : "✓ Tu video está listo, pero la voz no se pudo generar con tu clave: salió solo con música.";
+    est.textContent = res.voz ? "✓ Tu video está listo, con voz y música." : "✓ Tu video está listo, pero SIN VOZ" + (res.errorVoz ? " — la voz falló: " + res.errorVoz : "") + ". Salió solo con música.";
     est.className = "estado ok";
     $("resultado-rapido").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e){
@@ -3126,57 +3141,103 @@ function reiniciarVista(){
 }
 
 
+/* ---------- clave de voz (Gemini, opcional) y desbloqueo de audio ---------- */
+async function guardarClaveVoz(){
+  const k = $("clave-voz").value.trim();
+  const est = $("estado-clave-voz");
+  if (!k){ est.textContent = "Escribe la clave de Gemini primero."; est.className = "estado error"; return; }
+  est.textContent = "Probando clave de voz…"; est.className = "estado";
+  try {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(k) + "&pageSize=1");
+    if (!r.ok){ est.textContent = "Gemini rechazó la clave de voz (" + r.status + "). Revisa que esté bien copiada."; est.className = "estado error"; return; }
+    claveVoz = k;
+    localStorage.setItem(LS_VOZ, k);
+    $("clave-voz").value = "";
+    pintarEstadoVoz();
+    est.textContent = "✓ Clave de voz guardada: la narración saldrá en español nativo (Gemini)."; est.className = "estado ok";
+  } catch (e){
+    est.textContent = "No se pudo conectar (" + e.message + ")."; est.className = "estado error";
+  }
+}
+function quitarClaveVoz(){
+  claveVoz = "";
+  localStorage.removeItem(LS_VOZ);
+  pintarEstadoVoz();
+  const est = $("estado-clave-voz");
+  est.textContent = "Clave de voz eliminada."; est.className = "estado";
+}
+function pintarEstadoVoz(){
+  const hay = !!claveVoz;
+  const bq = $("btn-quitar-voz");
+  if (bq) bq.style.display = hay ? "" : "none";
+  if (hay) $("estado-clave-voz").textContent = "✓ Hay una clave de voz guardada (Gemini).";
+}
+function desbloquearAudio(){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) {}
+}
+
 /* ---------- voz real para el video: TTS con la clave del usuario ---------- */
 const VOCES_API = {
   gemini: { dalia: "Kore", narrador: "Charon", cuentacuentos: "Aoede", nina: "Leda", nino: "Puck", abuela: "Despina", abuelo: "Fenrir", locutor: "Orus", animado: "Zephyr", robot: "Enceladus" },
-  groq:   { dalia: "Arista-PlayAI", narrador: "Atlas-PlayAI", cuentacuentos: "Celeste-PlayAI", nina: "Deedee-PlayAI", nino: "Mason-PlayAI", abuela: "Eleanor-PlayAI", abuelo: "Basil-PlayAI", locutor: "Mitch-PlayAI", animado: "Quinn-PlayAI", robot: "Fritz-PlayAI" }
+  groq:   { dalia: "diana", narrador: "daniel", cuentacuentos: "hannah", nina: "autumn", nino: "austin", abuela: "hannah", abuelo: "troy", locutor: "austin", animado: "diana", robot: "troy" }
 };
-function vozApiId(){
+function vozApiId(usarGemini){
   const base = vozElegida.indexOf("p:") === 0 ? vozElegida.slice(2) : "dalia";
-  const tabla = VOCES_API[proveedor] || VOCES_API.gemini;
+  const tabla = usarGemini ? VOCES_API.gemini : VOCES_API.groq;
   return tabla[base] || tabla.dalia;
 }
-async function ttsGemini(texto, ctx){
-  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + encodeURIComponent(clave), {
+async function ttsGemini(texto){
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + encodeURIComponent(claveVoz || clave), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: texto }] }],
-      generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: vozApiId() } } } }
+      generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: vozApiId(true) } } } }
     })
   });
-  if (!r.ok) throw new Error("Gemini TTS respondió " + r.status);
+  if (!r.ok){ const te = await r.text().catch(() => ""); throw new Error("Gemini TTS respondió " + r.status + (te ? " — " + te.slice(0, 140) : "")); }
   const j = await r.json();
   const b64 = j.candidates[0].content.parts[0].inlineData.data;
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   const int16 = new Int16Array(bytes.buffer, 0, Math.floor(bytes.length / 2));
-  const buf = ctx.createBuffer(1, int16.length, 24000);
+  const buf = audioCtx.createBuffer(1, int16.length, 24000);
   const ch = buf.getChannelData(0);
   for (let i = 0; i < int16.length; i++) ch[i] = int16[i] / 32768;
   return buf;
 }
-async function ttsGroq(texto, ctx){
+async function ttsGroq(texto){
   const r = await fetch("https://api.groq.com/openai/v1/audio/speech", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: "Bearer " + clave },
-    body: JSON.stringify({ model: "playai-tts", input: texto, voice: vozApiId(), response_format: "wav" })
+    body: JSON.stringify({ model: "canopylabs/orpheus-v1-english", input: texto, voice: vozApiId(false), response_format: "wav" })
   });
-  if (!r.ok) throw new Error("Groq TTS respondió " + r.status);
+  if (!r.ok){ const te = await r.text().catch(() => ""); throw new Error("Groq TTS respondió " + r.status + (te ? " — " + te.slice(0, 140) : "")); }
   const ab = await r.arrayBuffer();
-  return await ctx.decodeAudioData(ab);
+  return await audioCtx.decodeAudioData(ab);
 }
+let ultimoErrorVoz = "";
 async function generarVoces(escenas, onProg){
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  desbloquearAudio();
+  if (!audioCtx) return null;
   if (audioCtx.state === "suspended"){ try { await audioCtx.resume(); } catch (e) {} }
+  ultimoErrorVoz = "";
+  const usarGemini = !!claveVoz || proveedor === "gemini";
   const out = [];
   for (let i = 0; i < escenas.length; i++){
     if (onProg) onProg(i, escenas.length);
     const txt = (escenas[i].narracion || "").trim();
     if (!txt){ out.push(null); continue; }
-    try { out.push(proveedor === "gemini" ? await ttsGemini(txt, audioCtx) : await ttsGroq(txt, audioCtx)); }
-    catch (e) { out.push(null); }
+    const bufs = [];
+    for (const trozo of trocearTexto(txt)){
+      try { bufs.push(usarGemini ? await ttsGemini(trozo) : await ttsGroq(trozo)); }
+      catch (e) { ultimoErrorVoz = e.message; }
+    }
+    out.push(bufs.length ? bufs : null);
   }
   return out;
 }
@@ -3225,7 +3286,7 @@ async function exportarVideo(opts){
     const total = duracionTotal();
     rec.start(500);
     const t0 = performance.now();
-    let ultIdxVoz = -1, fuenteVoz = null;
+    let ultIdxVoz = -1, fuentesVoz = [];
     await new Promise(res => {
       function paso(ahora){
         const t = (ahora - t0) / 1000;
@@ -3233,14 +3294,19 @@ async function exportarVideo(opts){
         renderEscena(oc, spec.estilo, spec.escenas[i], Math.max(0, t - inicioEscena(i)), duraciones[i]);
         if (buffersVoz && i !== ultIdxVoz){
           ultIdxVoz = i;
-          if (fuenteVoz){ try { fuenteVoz.stop(); } catch (e) {} fuenteVoz = null; }
-          const bufV = buffersVoz[i];
-          if (bufV && destVozFinal){
+          fuentesVoz.forEach(f => { try { f.stop(); } catch (e) {} });
+          fuentesVoz = [];
+          const bufsV = buffersVoz[i];
+          if (bufsV && destVozFinal){
             try {
-              const srcV = audioCtx.createBufferSource(); srcV.buffer = bufV;
-              const gV = audioCtx.createGain(); gV.gain.value = 1.0;
-              srcV.connect(gV); gV.connect(destVozFinal);
-              srcV.start(); fuenteVoz = srcV;
+              let tV = audioCtx.currentTime + 0.03;
+              for (const bufV of bufsV){
+                const srcV = audioCtx.createBufferSource(); srcV.buffer = bufV;
+                const gV = audioCtx.createGain(); gV.gain.value = 1.0;
+                srcV.connect(gV); gV.connect(destVozFinal);
+                srcV.start(tV); tV += bufV.duration || 0;
+                fuentesVoz.push(srcV);
+              }
             } catch (e) {}
           }
         }
@@ -3265,9 +3331,9 @@ async function exportarVideo(opts){
       a.textContent = "⬇ Descargar " + nombre + "." + ext + " (" + (blob.size / 1048576).toFixed(1) + " MB)";
       zona.appendChild(a);
     }
-    est.textContent = vozIncluida ? "✓ Video listo, con voz y música." : "✓ Video listo, pero sin voz: no se pudo generar con tu clave (o no hay clave). Lleva solo música.";
+    est.textContent = vozIncluida ? "✓ Video listo, con voz y música." : "✓ Video listo, pero SIN VOZ" + (ultimoErrorVoz ? " — la voz falló: " + ultimoErrorVoz : " — no hay clave para generarla") + ". Lleva solo música.";
     est.className = "estado ok";
-    return { url: url, nombre: nombre, ext: ext, mb: (blob.size / 1048576).toFixed(1), voz: vozIncluida };
+    return { url: url, nombre: nombre, ext: ext, mb: (blob.size / 1048576).toFixed(1), voz: vozIncluida, errorVoz: ultimoErrorVoz };
   } catch (e){
     est.textContent = "No se pudo exportar: " + e.message;
     est.className = "estado error";
@@ -3327,7 +3393,10 @@ $("btn-blanco").onclick = () => { cargarSpec(ejemploBlanco()); $("estado-gen").t
 $("btn-agregar").onclick = agregarEscena;
 $("btn-play").onclick = () => { reproduciendo ? pausarVista() : reproducirVista(); };
 $("btn-reiniciar").onclick = () => { reiniciarVista(); dibujarFotograma(0); };
-$("btn-exportar").onclick = exportarVideo;
+$("btn-exportar").onclick = () => { desbloquearAudio(); exportarVideo({}); };
+$("btn-clave-voz").onclick = guardarClaveVoz;
+$("btn-quitar-voz").onclick = quitarClaveVoz;
+pintarEstadoVoz();
 $("btn-portada").onclick = exportarPortada;
 $("btn-guion").onclick = copiarGuion;
 (function(){
