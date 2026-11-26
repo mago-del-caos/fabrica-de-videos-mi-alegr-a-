@@ -165,6 +165,10 @@
         </div>
       </div>
 
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600;margin:4px 0 10px">
+        <input type="checkbox" id="voz-video-rapida" checked style="width:20px;height:20px">
+        Incluir la voz en el video (se genera con tu clave)
+      </label>
       <button class="boton" id="btn-rapido">🎬 Crear mi video</button>
       <p class="estado" id="estado-rapido"></p>
       <div id="progreso-rapido" class="oculto">
@@ -179,9 +183,9 @@
           <button class="boton secundario" id="btn-portada-rapido">🖼 Portada PNG</button>
           <button class="boton secundario" id="btn-guion-rapido">📋 Copiar guion</button>
         </div>
-        <p class="aviso">⚠️ <b>El video exportado NO incluye la voz:</b> el navegador no
-        puede capturar la voz del dispositivo. El video sí lleva la música.
-        Copia el guion y grábalo en TikTok o CapCut.</p>
+        <p class="aviso">🎙️ <b>La voz del video se genera con tu clave de IA</b> al exportar
+        y se mezcla con la música. Sin clave, o si la generación falla, el video
+        sale solo con música. La vista previa sí usa la voz de tu dispositivo.</p>
       </div>
       <button class="boton secundario" id="btn-avanzado">🛠 Modo avanzado (editar escenas antes de exportar)</button>
     </div>
@@ -277,6 +281,10 @@
 
     <div class="tarjeta">
       <h2 class="mano">⬇️ Descargar</h2>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600;margin:4px 0 10px">
+        <input type="checkbox" id="voz-video" checked style="width:20px;height:20px">
+        Incluir la voz en el video (se genera con tu clave)
+      </label>
       <button class="boton" id="btn-exportar">⬇ Exportar video (WebM/MP4)</button>
       <p class="estado" id="estado-exp"></p>
       <div id="zona-descarga"></div>
@@ -284,9 +292,9 @@
         <button class="boton secundario" id="btn-portada">🖼 Portada PNG</button>
         <button class="boton secundario" id="btn-guion">📋 Copiar guion</button>
       </div>
-      <p class="aviso">⚠️ <b>El video exportado NO incluye la voz:</b> el navegador no
-      puede capturar la voz del dispositivo. El video sí lleva la música.
-      Copia el guion y grábalo en TikTok o CapCut.</p>
+      <p class="aviso">🎙️ <b>La voz del video se genera con tu clave de IA</b> al exportar
+        y se mezcla con la música. Sin clave, o si la generación falla, el video
+        sale solo con música. La vista previa sí usa la voz de tu dispositivo.</p>
       <details>
         <summary>¿Cómo funciona? (sin servidores)</summary>
         <p>Todo corre en tu navegador: la IA (Groq o Gemini) escribe el guion, y el
@@ -2614,24 +2622,48 @@ function cargarVoces(){
   }
 }
 
+function trocearTexto(t){
+  const frases = String(t).match(/[^.!?…]+[.!?…]*\s*/g) || [t];
+  const out = [];
+  let cur = "";
+  for (const f of frases){
+    if (cur && (cur + f).length > 180){ out.push(cur.trim()); cur = f; }
+    else cur += f;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out.length ? out : [String(t)];
+}
 function hablar(texto){
   if (!window.speechSynthesis || !texto) return;
+  const partes = trocearTexto(texto);
+  // Chrome descarta en silencio la frase si speak() va en el mismo tick que cancel():
+  // se cancela y se habla un instante después.
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(texto);
-  u.lang = "es-MX";
-  u.rate = spec && spec.velocidad ? spec.velocidad : 1.0;
-  const vocesD = $("voz")._voces || [];
-  if (vozElegida.indexOf("p:") === 0){
-    const pr = PRESETS_VOZ[vozElegida.slice(2)] || PRESETS_VOZ.dalia;
-    u.pitch = pr.pitch;
-    u.rate = u.rate * pr.rate;
-    const v = elegirVozGenero(vocesD, pr.gen);
-    if (v) u.voice = v;
-  } else if (vozElegida !== "auto"){
-    const idx = parseInt(vozElegida.slice(1), 10);
-    if (vocesD[idx]) u.voice = vocesD[idx];
-  }
-  speechSynthesis.speak(u);
+  setTimeout(() => {
+    if (!reproduciendo && !window.__hablarSuelto) return;
+    const vocesD = $("voz")._voces || [];
+    for (const txt of partes){
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = "es-MX";
+      u.rate = spec && spec.velocidad ? spec.velocidad : 1.0;
+      if (vozElegida.indexOf("p:") === 0){
+        const pr = PRESETS_VOZ[vozElegida.slice(2)] || PRESETS_VOZ.dalia;
+        u.pitch = pr.pitch;
+        u.rate = u.rate * pr.rate;
+        const v = elegirVozGenero(vocesD, pr.gen);
+        if (v) u.voice = v;
+      } else if (vozElegida !== "auto"){
+        const idx = parseInt(vozElegida.slice(1), 10);
+        if (vocesD[idx]) u.voice = vocesD[idx];
+      }
+      u.onerror = () => {
+        const ie = $("info-escena");
+        if (ie) ie.textContent = "⚠️ La voz del dispositivo no respondió: sube el volumen, revisa que el teléfono no esté en silencio o elige otra voz.";
+      };
+      speechSynthesis.speak(u);
+    }
+    try { speechSynthesis.resume(); } catch (e) {}
+  }, 90);
 }
 
 
@@ -2843,6 +2875,7 @@ async function crearVideoRapido(){
     const res = await exportarVideo({
       estadoEl: est,
       sinEnlace: true,
+      onVozProgreso: (i, n) => setProgresoRapido(20, "Generando la voz… escena " + (i + 1) + " de " + n),
       onProgreso: pct => {
         const total = 25 + Math.round(pct * 0.75);
         setProgresoRapido(total, "Creando tu video… " + total + " %");
@@ -2857,7 +2890,7 @@ async function crearVideoRapido(){
     dl.textContent = "⬇ Descargar video (" + res.mb + " MB)";
     $("progreso-rapido").classList.add("oculto");
     $("resultado-rapido").classList.remove("oculto");
-    est.textContent = "✓ Tu video está listo. Recuerda: no lleva voz, solo música. Copia el guion y grábalo en TikTok o CapCut.";
+    est.textContent = res.voz ? "✓ Tu video está listo, con voz y música." : "✓ Tu video está listo, pero la voz no se pudo generar con tu clave: salió solo con música.";
     est.className = "estado ok";
     $("resultado-rapido").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e){
@@ -3073,6 +3106,10 @@ function reproducirVista(){
   reproduciendo = true; ultimoTs = 0;
   $("btn-play").textContent = "⏸ Pausar";
   if (conMusica()) iniciarMusica();
+  const i0 = indiceEscena(tiempoActual);
+  escenaActual = i0;
+  const esc0 = spec.escenas[i0];
+  if (esc0 && esc0.narracion) hablar(esc0.narracion);
   rafId = requestAnimationFrame(pasoReproduccion);
 }
 function pausarVista(){
@@ -3088,6 +3125,62 @@ function reiniciarVista(){
   $("btn-play").textContent = "▶ Reproducir";
 }
 
+
+/* ---------- voz real para el video: TTS con la clave del usuario ---------- */
+const VOCES_API = {
+  gemini: { dalia: "Kore", narrador: "Charon", cuentacuentos: "Aoede", nina: "Leda", nino: "Puck", abuela: "Despina", abuelo: "Fenrir", locutor: "Orus", animado: "Zephyr", robot: "Enceladus" },
+  groq:   { dalia: "Arista-PlayAI", narrador: "Atlas-PlayAI", cuentacuentos: "Celeste-PlayAI", nina: "Deedee-PlayAI", nino: "Mason-PlayAI", abuela: "Eleanor-PlayAI", abuelo: "Basil-PlayAI", locutor: "Mitch-PlayAI", animado: "Quinn-PlayAI", robot: "Fritz-PlayAI" }
+};
+function vozApiId(){
+  const base = vozElegida.indexOf("p:") === 0 ? vozElegida.slice(2) : "dalia";
+  const tabla = VOCES_API[proveedor] || VOCES_API.gemini;
+  return tabla[base] || tabla.dalia;
+}
+async function ttsGemini(texto, ctx){
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + encodeURIComponent(clave), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: texto }] }],
+      generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: vozApiId() } } } }
+    })
+  });
+  if (!r.ok) throw new Error("Gemini TTS respondió " + r.status);
+  const j = await r.json();
+  const b64 = j.candidates[0].content.parts[0].inlineData.data;
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const int16 = new Int16Array(bytes.buffer, 0, Math.floor(bytes.length / 2));
+  const buf = ctx.createBuffer(1, int16.length, 24000);
+  const ch = buf.getChannelData(0);
+  for (let i = 0; i < int16.length; i++) ch[i] = int16[i] / 32768;
+  return buf;
+}
+async function ttsGroq(texto, ctx){
+  const r = await fetch("https://api.groq.com/openai/v1/audio/speech", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + clave },
+    body: JSON.stringify({ model: "playai-tts", input: texto, voice: vozApiId(), response_format: "wav" })
+  });
+  if (!r.ok) throw new Error("Groq TTS respondió " + r.status);
+  const ab = await r.arrayBuffer();
+  return await ctx.decodeAudioData(ab);
+}
+async function generarVoces(escenas, onProg){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended"){ try { await audioCtx.resume(); } catch (e) {} }
+  const out = [];
+  for (let i = 0; i < escenas.length; i++){
+    if (onProg) onProg(i, escenas.length);
+    const txt = (escenas[i].narracion || "").trim();
+    if (!txt){ out.push(null); continue; }
+    try { out.push(proveedor === "gemini" ? await ttsGemini(txt, audioCtx) : await ttsGroq(txt, audioCtx)); }
+    catch (e) { out.push(null); }
+  }
+  return out;
+}
+
 /* ---------- exportación ---------- */
 async function exportarVideo(opts){
   opts = opts || {};
@@ -3096,6 +3189,17 @@ async function exportarVideo(opts){
   if (!spec || !spec.escenas.length){ est.textContent = "Primero genera el guion o carga el ejemplo."; est.className = "estado error"; return null; }
   $("btn-exportar").disabled = true;
   if (!opts.onProgreso){ est.textContent = "Preparando exportación…"; est.className = "estado"; }
+  let buffersVoz = null;
+  const casillaVoz = opts.sinEnlace ? $("voz-video-rapida") : $("voz-video");
+  if (casillaVoz && casillaVoz.checked && clave && !sinClave){
+    const avisarVoz = (i, n) => {
+      if (opts.onVozProgreso) opts.onVozProgreso(i, n);
+      else if (!opts.onProgreso){ est.textContent = "Generando la voz con tu clave… escena " + (i + 1) + " de " + n; est.className = "estado"; }
+    };
+    try { buffersVoz = await generarVoces(spec.escenas, avisarVoz); } catch (e) { buffersVoz = null; }
+    if (buffersVoz && !buffersVoz.some(Boolean)) buffersVoz = null;
+  }
+  const vozIncluida = !!buffersVoz;
   try {
     const off = document.createElement("canvas"); off.width = W; off.height = H;
     const oc = off.getContext("2d");
@@ -3105,9 +3209,15 @@ async function exportarVideo(opts){
       if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)){ mime = m; break; }
     }
     let musica = null;
+    let destVozFinal = null;
     if (conMusica()){
       musica = iniciarMusica();
       musica.dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+      destVozFinal = musica.dest;
+    }
+    if (buffersVoz && !destVozFinal){
+      destVozFinal = audioCtx.createMediaStreamDestination();
+      destVozFinal.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
     }
     const rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 8000000 } : undefined);
     const partes = [];
@@ -3115,11 +3225,25 @@ async function exportarVideo(opts){
     const total = duracionTotal();
     rec.start(500);
     const t0 = performance.now();
+    let ultIdxVoz = -1, fuenteVoz = null;
     await new Promise(res => {
       function paso(ahora){
         const t = (ahora - t0) / 1000;
         const i = indiceEscena(Math.min(t, total - 0.01));
         renderEscena(oc, spec.estilo, spec.escenas[i], Math.max(0, t - inicioEscena(i)), duraciones[i]);
+        if (buffersVoz && i !== ultIdxVoz){
+          ultIdxVoz = i;
+          if (fuenteVoz){ try { fuenteVoz.stop(); } catch (e) {} fuenteVoz = null; }
+          const bufV = buffersVoz[i];
+          if (bufV && destVozFinal){
+            try {
+              const srcV = audioCtx.createBufferSource(); srcV.buffer = bufV;
+              const gV = audioCtx.createGain(); gV.gain.value = 1.0;
+              srcV.connect(gV); gV.connect(destVozFinal);
+              srcV.start(); fuenteVoz = srcV;
+            } catch (e) {}
+          }
+        }
         const pct = Math.min(100, Math.round(100 * t / total));
         if (opts.onProgreso) opts.onProgreso(pct);
         else est.textContent = "Grabando… " + pct + "% (el video se graba en tiempo real)";
@@ -3141,9 +3265,9 @@ async function exportarVideo(opts){
       a.textContent = "⬇ Descargar " + nombre + "." + ext + " (" + (blob.size / 1048576).toFixed(1) + " MB)";
       zona.appendChild(a);
     }
-    est.textContent = "✓ Video listo. Recuerda: no lleva voz, solo música. Copia el guion y grábalo en TikTok o CapCut.";
+    est.textContent = vozIncluida ? "✓ Video listo, con voz y música." : "✓ Video listo, pero sin voz: no se pudo generar con tu clave (o no hay clave). Lleva solo música.";
     est.className = "estado ok";
-    return { url: url, nombre: nombre, ext: ext, mb: (blob.size / 1048576).toFixed(1) };
+    return { url: url, nombre: nombre, ext: ext, mb: (blob.size / 1048576).toFixed(1), voz: vozIncluida };
   } catch (e){
     est.textContent = "No se pudo exportar: " + e.message;
     est.className = "estado error";
