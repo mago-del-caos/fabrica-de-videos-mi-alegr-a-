@@ -108,7 +108,7 @@
 
       <h2 class="mano" style="margin-top:14px">⚡ Crea tu video</h2>
       <p class="nota">Escribe una frase y recibe tu video terminado. Sin editor, sin pasos extra.</p>
-      <p class="nota">✨ <b>Edición ampliada:</b> 87 personajes · 40 escenarios · 180+ objetos (incluye imágenes reales buscadas por API) · 10 voces con personaje · 8 pistas de música · videos de hasta <b>7 minutos</b>.</p>
+      <p class="nota">✨ <b>Edición ampliada:</b> 111 personajes · 57 escenarios · 240+ objetos (incluye imágenes reales buscadas por API) · 10 voces con personaje · 8 pistas de música · 9 estilos (5 temáticos nuevos) · videos de hasta <b>7 minutos</b>.</p>
 
       <label for="prompt-rapido">Describe tu video en una frase…</label>
       <textarea id="prompt-rapido" placeholder="Ej.: Un video sobre Iluminando tu futuro: poner 50 lámparas ahorradoras y 4 vigilantes en Tlatelolco para que el barrio sea más seguro."></textarea>
@@ -121,6 +121,11 @@
             <option value="alebrigma">Alebrigma — formas suaves, fondo morado</option>
             <option value="snes">SNES — pixel art 16 bits</option>
             <option value="nes">NES — pixel art 8 bits</option>
+            <option value="piratas">🏴‍☠️ Piratas — aventura en el mar</option>
+            <option value="superheroes">🦸 Superhéroes — ciudad en peligro</option>
+            <option value="dinosaurios">🦖 Dinosaurios — mundo prehistórico</option>
+            <option value="magia">🔮 Magia — hechizos y fantasía</option>
+            <option value="mexico">🇲🇽 México — fiesta y tradición</option>
           </select>
         </div>
         <div>
@@ -133,6 +138,29 @@
             <option value="180">3 minutos</option>
             <option value="300">5 minutos</option>
             <option value="420">7 minutos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fila">
+        <div>
+          <label for="voz-rapida">Voz</label>
+          <select id="voz-rapida">
+            <option value="auto" selected>Automática (español)</option>
+          </select>
+        </div>
+        <div>
+          <label for="fondo-rapido">Fondo</label>
+          <select id="fondo-rapido">
+            <option value="auto" selected>Automático (según la historia)</option>
+            <option value="parque">Parque</option>
+            <option value="espacio">Espacio</option>
+            <option value="montana">Montaña</option>
+            <option value="playa">Playa</option>
+            <option value="bosque">Bosque</option>
+            <option value="ciudad">Ciudad</option>
+            <option value="pueblo">Pueblo</option>
+            <option value="volcan">Volcán</option>
           </select>
         </div>
       </div>
@@ -178,6 +206,11 @@
             <option value="alebrigma">Alebrigma — formas suaves, fondo morado</option>
             <option value="snes">SNES — pixel art 16 bits</option>
             <option value="nes">NES — pixel art 8 bits</option>
+            <option value="piratas">🏴‍☠️ Piratas — aventura en el mar</option>
+            <option value="superheroes">🦸 Superhéroes — ciudad en peligro</option>
+            <option value="dinosaurios">🦖 Dinosaurios — mundo prehistórico</option>
+            <option value="magia">🔮 Magia — hechizos y fantasía</option>
+            <option value="mexico">🇲🇽 México — fiesta y tradición</option>
           </select>
         </div>
         <div>
@@ -299,9 +332,9 @@ const easeOut = t => { t = clamp(t, 0, 1); return 1 - Math.pow(1 - t, 3); };
 const easeOutBack = t => { t = clamp(t, 0, 1); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const popScale = ts => easeOutBack(ts / 0.5);
 
-const PROMPT_ESQUEMA = "ESQUEMA EXACTO DEL SPEC (JSON, sin markdown ni explicaciones):\n\nEstilo \"aprendiz\" (cartoon 2D, fondo blanco con mancha menta):\n{\n  \"titulo\": \"Título del video\",\n  \"estilo\": \"aprendiz\",\n  \"musica\": false,\n  \"voz\": \"dalia\",\n  \"velocidad\": 0.95,\n  \"escenas\": [\n    {\"rotulo\": \"TÍTULO EN MAYÚSCULAS\", \"narracion\": \"Texto que se escucha (6 a 10 segundos al leerlo en voz alta).\", \"escenario\": \"parque\",\n     \"elementos\": [\n       {\"tipo\": \"personaje\", \"personaje\": \"doctora\", \"x\": 360, \"y\": 1080, \"escala\": 1.0, \"pose\": \"pie\", \"expresion\": \"contento\"},\n       {\"tipo\": \"objeto\", \"nombre\": \"arbol\", \"x\": 200, \"y\": 800, \"escala\": 1.0},\n       {\"tipo\": \"texto\", \"texto\": \"50\", \"x\": 360, \"y\": 500, \"tamano\": 120, \"fuente\": \"hand\"},\n       {\"tipo\": \"lista\", \"items\": [\"Punto uno\", \"Punto dos\"], \"x\": 90, \"y\": 580, \"tamano\": 44, \"intervalo\": 2.0, \"check\": true}\n     ]}\n  ]\n}\nCoordenadas del lienzo aprendiz: 720 de ancho x 1280 de alto. El suelo está en y=1080.\nTipos de elemento: personaje, objeto, texto, texto_grande, lista, nota,\nbolsa_dinero, grupo, lampara_calle, lampara_mano, camara, mapa, hoja, luna,\npalomita, cancha, balon_futbol, balon_basquet, silbato, corazon, jupiter,\ntelescopio, estrella, nube, flotador, cazador, termometro, radiacion,\nparaguas, europa, destellos.\n\nEstilos retro (\"alebrigma\", \"snes\", \"nes\": fondo oscuro estrellado, escenas\nde tipo portada/intro/tarjeta/definicion/fundido):\n{\n  \"titulo\": \"Título del video\",\n  \"estilo\": \"snes\",\n  \"musica\": true,\n  \"voz\": \"dalia\",\n  \"velocidad\": 1.0,\n  \"escenas\": [\n    {\"tipo\": \"portada\", \"titulo\": [\"LÍNEA 1\", \"LÍNEA 2\"], \"gancho\": \"¿Pregunta gancho?\", \"narracion\": \"¿Pregunta gancho?\"},\n    {\"tipo\": \"intro\", \"subtitulo\": \"Frase que se escucha y se lee en pantalla.\", \"sprite\": \"cerebro\", \"narracion\": \"Frase que se escucha y se lee en pantalla.\"},\n    {\"tipo\": \"tarjeta\", \"titulo\": [\"PALABRA 1\", \"PALABRA 2\"], \"color1\": [74, 222, 128], \"color2\": [255, 107, 157], \"icono\": \"libreta\", \"narracion\": \"Palabra 1 palabra 2.\"},\n    {\"tipo\": \"definicion\", \"subtitulo\": \"Definición o ejemplo.\", \"sprite\": \"persona:otto\", \"etiqueta\": \"Etiqueta corta\", \"narracion\": \"Definición o ejemplo.\"},\n    {\"tipo\": \"fundido\", \"duracion\": 0.5}\n  ]\n}\nEn retro, \"sprite\"/\"icono\" es un nombre del catálogo (cerebro, libreta,\ntelefono, calculadora, mapa, papel, llave, equipo, persona:otto,\npersona:doctora, arbol, casa, sol...). \"escenario\" también se puede poner\nen cualquier escena retro (por ejemplo \"bosque\" o \"espacio\").\n";
+const PROMPT_ESQUEMA = "ESQUEMA EXACTO DEL SPEC (JSON, sin markdown ni explicaciones):\n\nEstilo \"aprendiz\" (cartoon 2D, fondo blanco con mancha menta):\n{\n  \"titulo\": \"Título del video\",\n  \"estilo\": \"aprendiz\",\n  \"musica\": false,\n  \"voz\": \"dalia\",\n  \"velocidad\": 0.95,\n  \"escenas\": [\n    {\"rotulo\": \"TÍTULO EN MAYÚSCULAS\", \"narracion\": \"Texto que se escucha (6 a 10 segundos al leerlo en voz alta).\", \"escenario\": \"parque\",\n     \"elementos\": [\n       {\"tipo\": \"personaje\", \"personaje\": \"doctora\", \"x\": 360, \"y\": 1080, \"escala\": 1.0, \"pose\": \"pie\", \"expresion\": \"contento\"},\n       {\"tipo\": \"objeto\", \"nombre\": \"arbol\", \"x\": 200, \"y\": 800, \"escala\": 1.0},\n       {\"tipo\": \"texto\", \"texto\": \"50\", \"x\": 360, \"y\": 500, \"tamano\": 120, \"fuente\": \"hand\"},\n       {\"tipo\": \"lista\", \"items\": [\"Punto uno\", \"Punto dos\"], \"x\": 90, \"y\": 580, \"tamano\": 44, \"intervalo\": 2.0, \"check\": true}\n     ]}\n  ]\n}\nCoordenadas del lienzo aprendiz: 720 de ancho x 1280 de alto. El suelo está en y=1080.\nTipos de elemento: personaje, objeto, texto, texto_grande, lista, nota,\nbolsa_dinero, grupo, lampara_calle, lampara_mano, camara, mapa, hoja, luna,\npalomita, cancha, balon_futbol, balon_basquet, silbato, corazon, jupiter,\ntelescopio, estrella, nube, flotador, cazador, termometro, radiacion,\nparaguas, europa, destellos.\n\nEstilos retro (\"alebrigma\", \"snes\", \"nes\": fondo oscuro estrellado, escenas\nde tipo portada/intro/tarjeta/definicion/fundido):\n{\n  \"titulo\": \"Título del video\",\n  \"estilo\": \"snes\",\n  \"musica\": true,\n  \"voz\": \"dalia\",\n  \"velocidad\": 1.0,\n  \"escenas\": [\n    {\"tipo\": \"portada\", \"titulo\": [\"LÍNEA 1\", \"LÍNEA 2\"], \"gancho\": \"¿Pregunta gancho?\", \"narracion\": \"¿Pregunta gancho?\"},\n    {\"tipo\": \"intro\", \"subtitulo\": \"Frase que se escucha y se lee en pantalla.\", \"sprite\": \"cerebro\", \"narracion\": \"Frase que se escucha y se lee en pantalla.\"},\n    {\"tipo\": \"tarjeta\", \"titulo\": [\"PALABRA 1\", \"PALABRA 2\"], \"color1\": [74, 222, 128], \"color2\": [255, 107, 157], \"icono\": \"libreta\", \"narracion\": \"Palabra 1 palabra 2.\"},\n    {\"tipo\": \"definicion\", \"subtitulo\": \"Definición o ejemplo.\", \"sprite\": \"persona:otto\", \"etiqueta\": \"Etiqueta corta\", \"narracion\": \"Definición o ejemplo.\"},\n    {\"tipo\": \"fundido\", \"duracion\": 0.5}\n  ]\n}\nEn retro, \"sprite\"/\"icono\" es un nombre del catálogo (cerebro, libreta,\ntelefono, calculadora, mapa, papel, llave, equipo, persona:otto,\npersona:doctora, arbol, casa, sol...). \"escenario\" también se puede poner\nen cualquier escena retro (por ejemplo \"bosque\" o \"espacio\").\n\nESTILOS TEMÁTICOS (\"piratas\", \"superheroes\", \"dinosaurios\", \"magia\", \"mexico\"): usan el MISMO esquema que aprendiz (escenas con rotulo, narracion, escenario y elementos; lienzo 720x1280, suelo y=1080), poniendo \"estilo\" con el nombre del tema. Si una escena no trae escenario, se pinta el fondo ambiente del tema. En cada estilo usa sobre todo SUS escenarios, personajes y objetos propios, que están al final del catálogo, y varía los escenarios entre escenas para que el video no se vea repetido.\n\nIMPORTANTE para que ningún video se vea repetido: varía el orden y el tipo de las escenas, no empieces siempre igual, alterna los escenarios y los personajes, y en retro no uses siempre la misma secuencia portada-intro-tarjeta-definicion-fundido: mezcla los tipos y pon escenarios distintos en las escenas.\n";
 const PROMPT_REGLAS = "REGLAS (obligatorias):\n- Devuelve SOLO el JSON del spec, sin texto antes ni después, sin ```json.\n- Usa EXCLUSIVAMENTE los datos que da el usuario. No inventes cifras,\n  nombres, fechas, lugares ni hechos. Si algo falta, no lo inventes: usa\n  solo lo que hay.\n- Lo hipotético va marcado como hipotético (\"imaginaron\", \"si existiera\",\n  \"según los científicos\", \"podría\").\n- La narración va en español neutro de México, en frases cortas y claras.\n- El rótulo de cada escena va en MAYÚSCULAS, corto (máximo 4 palabras por línea).\n- Cada escena lleva su narración completa (lo que se escucha). La duración\n  de cada escena la marca su narración (unos 6-10 segundos por escena).\n- El número de escenas depende de la duración pedida: unas 4 escenas para\n  30 segundos, 7-8 para 1 minuto, 11 para 1 minuto y medio, 15 para\n  2 minutos y 22 para 3 minutos, 37 para 5 minutos y 52 para 7 minutos.\n- Estructura recomendada: gancho (pregunta) -> tema -> puntos principales\n  (uno por escena) -> cierre con llamada a la acción, si el contenido la trae.\n- En aprendiz, reparte los elementos por la escena sin tapar el rótulo\n  (el rótulo ocupa la parte superior, y=100 a y=350). El suelo es y=1080.\n- No uses recursos que no estén en el catálogo de abajo.\n";
-const PROMPT_CATALOGO = "CATÁLOGO DE RECURSOS DISPONIBLES (usa SOLO estos nombres exactos):\n\nPERSONAJES (campo \"personaje\" en aprendiz, \"persona:<nombre>\" en retro):\n- hombre: Hombre adulto, camisa morada.\n- mujer: Mujer adulta, pelo largo y falda.\n- nino: Niño, más bajito, camisa verde.\n- nina: Niña, coletas y falda.\n- anciano: Anciano de pelo blanco, barba y bastón.\n- anciana: Anciana de pelo blanco recogido, falda y bastón.\n- maestro: Maestro con corbata y libro en la mano.\n- estudiante: Estudiante con mochila.\n- cientifico: Científico con bata blanca y gafas.\n- doctora: Doctora con bata blanca y estetoscopio.\n- trabajador: Trabajador con casco amarillo y chaleco.\n- campesino: Campesino con sombrero de paja.\n- deportista: Deportista con camiseta roja número 10.\n- policia: Policía con gorra y uniforme azul.\n- bombero: Bombero con casco rojo.\n- vendedor: Vendedor con delantal.\n\nEXPRESIONES: contento, preocupado, pensando, sorprendido, riendo.\nPOSES (aprendiz): pie, caminando, senalando, sentado, saludando.\n\nOBJETOS (campo \"objeto\" + \"nombre\" en aprendiz; \"sprite\"/\"icono\" en retro):\n- libro: Libro abierto con líneas de texto.\n- monedas: Tres monedas de oro con el signo $.\n- billetes: Tres billetes verdes apilados.\n- alcancia: Alcancía en forma de cerdito rosa.\n- grafico: Gráfico de barras en un cuadro.\n- puerta: Puerta de madera con manija dorada.\n- arbol: Árbol con tronco y copa con manzanas.\n- planta: Planta en maceta con hojas.\n- casa: Casa con techo rojo, puerta y ventana.\n- escuela: Escuela con techo, ventanas y bandera.\n- carro: Carro rojo de cuatro ruedas.\n- autobus: Autobús amarillo escolar.\n- trofeo: Trofeo dorado de copa.\n- sol: Sol sonriente con rayos.\n- nube: Nube blanca esponjosa.\n- lluvia: Nube con gotas de lluvia cayendo.\n- cohete: Cohete con llama encendida.\n- planeta: Planeta con anillos y mancha.\n- microscopio: Microscopio de laboratorio.\n- adn: Doble hélice de ADN azul y roja.\n- foco: Foco encendido (idea).\n- reloj: Reloj de pared con manecillas.\n- calendario: Calendario con un día marcado en rojo.\n- martillo: Martillo de carpintero.\n- estetoscopio: Estetoscopio médico.\n- manzana: Manzana roja con hoja.\n- comida: Plato con comida y verduras.\n- regalo: Caja de regalo con moño.\n- bandera: Bandera ondeando en un mástil.\n- lapiz: Lápiz amarillo con punta.\n- mochila: Mochila escolar con asa.\n- flor: Flor de pétalos rosas y centro amarillo.\n- computadora: Computadora portátil encendida.\n- gota: Gota de agua azul.\n- lampara_calle: Farola de calle que se puede encender.\n- lampara_mano: Lámpara ahorradora de mano.\n- camara: Cámara de vigilancia.\n- telefono: Teléfono celular con aplicaciones.\n- calculadora: Calculadora con pantalla y teclas.\n- cuaderno: Cuaderno espiral con notas.\n- mapa: Mapa con calles, parque y pin.\n- balon_futbol: Balón de fútbol blanco y negro.\n- balon_basquet: Balón de básquet naranja.\n- silbato: Silbato de entrenador.\n- corazon: Corazón rojo de salud/amor.\n- estrella: Estrella amarilla de cinco puntas.\n- luna: Luna llena con cráteres.\n- telescopio: Telescopio para mirar las estrellas.\n- cerebro: Cerebro rosa (sprite pixel art y suave).\n- llave: Llave inglesa de herramienta.\n- jupiter: Planeta Júpiter con bandas y la Gran Mancha Roja.\n\nESCENARIOS (campo \"escenario\" en la escena):\n- salon: Salón de clases: pizarrón, ventanas y pupitres.\n- oficina: Oficina: ventana, escritorio y computadora.\n- parque: Parque: árboles, camino, banca y flores.\n- calle: Calle de día: edificios, banqueta y farola.\n- playa: Playa: mar con olas, arena, palmera y sombrilla.\n- espacio: Espacio: estrellas, planeta, luna y nebulosa. Fondo oscuro.\n- ciudad: Ciudad: rascacielos, calle y líneas viales.\n- campo: Campo: montañas, surcos, granero y molino.\n- hospital: Hospital: cruz, ventana y camilla.\n- mercado: Mercado: puestos de colores con frutas.\n- biblioteca: Biblioteca: estanterías de libros y mesa de lectura.\n- casa: Casa/sala: ventana, cuadro, sofá y mesa.\n- estadio: Estadio: gradas con público y cancha.\n- jardin: Jardín: seto, flores y camino.\n- mar: Mar: barco, olas animadas y cielo abierto.\n- desierto: Desierto: dunas, sol fuerte y cactus.\n- bosque: Bosque: pinos en varias capas y flores.\n- montana: Montaña: cordillera con nieve y ladera con pinos.\n\nPERSONAJES NUEVOS (también válidos como \"personaje\" y \"persona:<nombre>\"):\n- enfermera: Enfermera con cofia de cruz roja y bata.\n- doctor: Doctor con bata y estetoscopio.\n- ingeniera: Ingeniera con casco amarillo y chaleco.\n- arquitecto: Arquitecto con casco y chaleco.\n- cocinera / cocinero: Con gorro de chef y delantal.\n- panadero: Gorro de chef, camisa amarilla y delantal.\n- artista: Con boina morada. - pintora: Boina, delantal y falda.\n- musico: Traje oscuro con corbata. - cantante: Pelo largo y falda.\n- bailarina: Moño, blusa rosa y falda. - payaso: Pelo de colores y nariz roja.\n- mago: Sombrero de copa y corbata. - pirata: Pañoleta roja y barba.\n- astronauta: Casco de astronauta y traje blanco.\n- superheroe: Camisa azul con S en el pecho.\n- reina / rey / princesa: Con corona dorada.\n- vaquero: Sombrero de paja y camisa café. - detective: Sombrero de copa y corbata.\n- karateka: Uniforme blanco con cinta roja en la cabeza.\n- futbolista: Camiseta verde número 9. - basquetbolista: Camiseta naranja número 23.\n- ciclista: Casco amarillo. - nadadora: Gorro de natación azul.\n- bebe: Bebé, muy bajito. - adolescente: Con mochila, estatura media.\n- chica: Chica con trenzas. - fotografo: Con gorra.\n- programadora: Coleta y gafas. - veterinaria: Bata, estetoscopio y coleta.\n- dentista: Bata y gafas. - cartero: Gorra y mochila.\n- jardinero: Sombrero y delantal. - albanil: Casco y chaleco.\n- granjera: Trenzas y camisa rosa. - exploradora: Sombrero y mochila. - buzo: Traje de buzo con gafas.\n\nANIMALES Y CRIATURAS (personaje de figura completa, sin poses):\nperro, gato, conejo, oso, panda, koala, zorro, leon, tigre, elefante, jirafa, cebra, caballo, vaca, cerdito, pollo, pato, buho, pinguino, rana, tortuga, pez, pulpo, mariposa, abeja, robot, alien, fantasma, dragon, unicornio, dinosaurio.\n\nOBJETOS NUEVOS (campo \"objeto\", se dibujan como figura grande):\npizza, hamburguesa, taco, burrito, helado, pastel, dona, galleta, chocolate, palomitas, zanahoria, platano, uvas, fresa, sandia, naranja, limon, pera, durazno, cereza, aguacate, elote, papas_fritas, huevo, pan, queso, ensalada, sopa, arroz, sushi, camaron, pescado, leche, cafe, te, jugo, refresco, mate, sarten, cuchara, tenedor, cuchillo, vaso, tetera, miel, regla, tijeras, clip, pincel, paleta, globo_terraqueo, tubo_ensayo, iman, bateria, vela, linterna, destornillador, caja_herramientas, escoba, balde, llave_casa, candado, campana, espejo, despertador, television, radio, impresora, sofa, cama, silla, bicicleta, motocicleta, tren, avion, barco, helicoptero, tractor, ambulancia, patrulla, camion_bomberos, taxi, camion, patineta, globo_aerostatico, ancla, semaforo, pino, cactus, girasol, rosa, tulipan, hoja, seta, caracola, copo_nieve, fuego, rayo, huella, hueso, tenis, beisbol, voleibol, futbol_americano, billar, boliche, medalla, guantes_box, patines, esquis, ajedrez, dados, diana, globo, confeti, pinata, corona, varita, guitarra, trompeta, violin, tambor, microfono, audifonos, carta, paquete, brujula, bolsa, diamante, tarjeta, curita, jeringa, pastilla, mascarilla, sombrilla, tornado, arco_iris, isla, castillo_e, estatua, diente, musculo.\n\nESCENARIOS NUEVOS (campo \"escenario\"):\n- volcan: Volcán en erupción con río de lava. - nieve: Paisaje nevado con muñeco de nieve.\n- selva: Selva densa con lianas. - fondo_marino: Bajo el mar, con corales y peces (oscuro).\n- castillo: Castillo medieval con banderas. - laboratorio: Laboratorio con matraces y microscopio.\n- circo: Carpa de circo con globos. - museo: Museo con cuadros y vitrinas.\n- estacion_espacial: Estación espacial con ventanal a la Tierra (oscuro).\n- cueva: Cueva con estalactitas y murciélagos (oscuro). - arcoiris: Campo con arcoíris grande.\n- otono: Bosque otoñal con hojas cayendo. - noche: Noche estrellada con luna llena (oscuro).\n- ciudad_noche: Ciudad de noche con ventanas encendidas (oscuro). - granja: Granja con granero y cerca.\n- puerto: Puerto con barco de vela. - vias: Vías del tren entre montañas.\n- iglu: Paisaje ártico con iglú. - piramides: Pirámides en el desierto al atardecer.\n- faro: Faro junto al mar con su haz de luz. - cascada: Cascada entre rocas.\n- puente: Puente de madera sobre un río al atardecer. - invernadero: Invernadero con plantas.\n\nREGLAS: si un objeto o personaje no está en este catálogo, NO lo uses;\nelige el más parecido de la lista. Los escenarios van en el campo\n\"escenario\" de la escena; si no pones escenario, el fondo es el\nestándar del estilo (blanco con mancha menta en aprendiz, estrellado\nen retro).";
+const PROMPT_CATALOGO = "CATÁLOGO DE RECURSOS DISPONIBLES (usa SOLO estos nombres exactos):\n\nPERSONAJES (campo \"personaje\" en aprendiz, \"persona:<nombre>\" en retro):\n- hombre: Hombre adulto, camisa morada.\n- mujer: Mujer adulta, pelo largo y falda.\n- nino: Niño, más bajito, camisa verde.\n- nina: Niña, coletas y falda.\n- anciano: Anciano de pelo blanco, barba y bastón.\n- anciana: Anciana de pelo blanco recogido, falda y bastón.\n- maestro: Maestro con corbata y libro en la mano.\n- estudiante: Estudiante con mochila.\n- cientifico: Científico con bata blanca y gafas.\n- doctora: Doctora con bata blanca y estetoscopio.\n- trabajador: Trabajador con casco amarillo y chaleco.\n- campesino: Campesino con sombrero de paja.\n- deportista: Deportista con camiseta roja número 10.\n- policia: Policía con gorra y uniforme azul.\n- bombero: Bombero con casco rojo.\n- vendedor: Vendedor con delantal.\n\nEXPRESIONES: contento, preocupado, pensando, sorprendido, riendo.\nPOSES (aprendiz): pie, caminando, senalando, sentado, saludando.\n\nOBJETOS (campo \"objeto\" + \"nombre\" en aprendiz; \"sprite\"/\"icono\" en retro):\n- libro: Libro abierto con líneas de texto.\n- monedas: Tres monedas de oro con el signo $.\n- billetes: Tres billetes verdes apilados.\n- alcancia: Alcancía en forma de cerdito rosa.\n- grafico: Gráfico de barras en un cuadro.\n- puerta: Puerta de madera con manija dorada.\n- arbol: Árbol con tronco y copa con manzanas.\n- planta: Planta en maceta con hojas.\n- casa: Casa con techo rojo, puerta y ventana.\n- escuela: Escuela con techo, ventanas y bandera.\n- carro: Carro rojo de cuatro ruedas.\n- autobus: Autobús amarillo escolar.\n- trofeo: Trofeo dorado de copa.\n- sol: Sol sonriente con rayos.\n- nube: Nube blanca esponjosa.\n- lluvia: Nube con gotas de lluvia cayendo.\n- cohete: Cohete con llama encendida.\n- planeta: Planeta con anillos y mancha.\n- microscopio: Microscopio de laboratorio.\n- adn: Doble hélice de ADN azul y roja.\n- foco: Foco encendido (idea).\n- reloj: Reloj de pared con manecillas.\n- calendario: Calendario con un día marcado en rojo.\n- martillo: Martillo de carpintero.\n- estetoscopio: Estetoscopio médico.\n- manzana: Manzana roja con hoja.\n- comida: Plato con comida y verduras.\n- regalo: Caja de regalo con moño.\n- bandera: Bandera ondeando en un mástil.\n- lapiz: Lápiz amarillo con punta.\n- mochila: Mochila escolar con asa.\n- flor: Flor de pétalos rosas y centro amarillo.\n- computadora: Computadora portátil encendida.\n- gota: Gota de agua azul.\n- lampara_calle: Farola de calle que se puede encender.\n- lampara_mano: Lámpara ahorradora de mano.\n- camara: Cámara de vigilancia.\n- telefono: Teléfono celular con aplicaciones.\n- calculadora: Calculadora con pantalla y teclas.\n- cuaderno: Cuaderno espiral con notas.\n- mapa: Mapa con calles, parque y pin.\n- balon_futbol: Balón de fútbol blanco y negro.\n- balon_basquet: Balón de básquet naranja.\n- silbato: Silbato de entrenador.\n- corazon: Corazón rojo de salud/amor.\n- estrella: Estrella amarilla de cinco puntas.\n- luna: Luna llena con cráteres.\n- telescopio: Telescopio para mirar las estrellas.\n- cerebro: Cerebro rosa (sprite pixel art y suave).\n- llave: Llave inglesa de herramienta.\n- jupiter: Planeta Júpiter con bandas y la Gran Mancha Roja.\n\nESCENARIOS (campo \"escenario\" en la escena):\n- salon: Salón de clases: pizarrón, ventanas y pupitres.\n- oficina: Oficina: ventana, escritorio y computadora.\n- parque: Parque: árboles, camino, banca y flores.\n- calle: Calle de día: edificios, banqueta y farola.\n- playa: Playa: mar con olas, arena, palmera y sombrilla.\n- espacio: Espacio: estrellas, planeta, luna y nebulosa. Fondo oscuro.\n- ciudad: Ciudad: rascacielos, calle y líneas viales.\n- campo: Campo: montañas, surcos, granero y molino.\n- hospital: Hospital: cruz, ventana y camilla.\n- mercado: Mercado: puestos de colores con frutas.\n- biblioteca: Biblioteca: estanterías de libros y mesa de lectura.\n- casa: Casa/sala: ventana, cuadro, sofá y mesa.\n- estadio: Estadio: gradas con público y cancha.\n- jardin: Jardín: seto, flores y camino.\n- mar: Mar: barco, olas animadas y cielo abierto.\n- desierto: Desierto: dunas, sol fuerte y cactus.\n- bosque: Bosque: pinos en varias capas y flores.\n- montana: Montaña: cordillera con nieve y ladera con pinos.\n- pueblo: Pueblo mexicano: plaza con iglesia de torre, casas de colores y papel picado.\n\nPERSONAJES NUEVOS (también válidos como \"personaje\" y \"persona:<nombre>\"):\n- enfermera: Enfermera con cofia de cruz roja y bata.\n- doctor: Doctor con bata y estetoscopio.\n- ingeniera: Ingeniera con casco amarillo y chaleco.\n- arquitecto: Arquitecto con casco y chaleco.\n- cocinera / cocinero: Con gorro de chef y delantal.\n- panadero: Gorro de chef, camisa amarilla y delantal.\n- artista: Con boina morada. - pintora: Boina, delantal y falda.\n- musico: Traje oscuro con corbata. - cantante: Pelo largo y falda.\n- bailarina: Moño, blusa rosa y falda. - payaso: Pelo de colores y nariz roja.\n- mago: Sombrero de copa y corbata. - pirata: Pañoleta roja y barba.\n- astronauta: Casco de astronauta y traje blanco.\n- superheroe: Camisa azul con S en el pecho.\n- reina / rey / princesa: Con corona dorada.\n- vaquero: Sombrero de paja y camisa café. - detective: Sombrero de copa y corbata.\n- karateka: Uniforme blanco con cinta roja en la cabeza.\n- futbolista: Camiseta verde número 9. - basquetbolista: Camiseta naranja número 23.\n- ciclista: Casco amarillo. - nadadora: Gorro de natación azul.\n- bebe: Bebé, muy bajito. - adolescente: Con mochila, estatura media.\n- chica: Chica con trenzas. - fotografo: Con gorra.\n- programadora: Coleta y gafas. - veterinaria: Bata, estetoscopio y coleta.\n- dentista: Bata y gafas. - cartero: Gorra y mochila.\n- jardinero: Sombrero y delantal. - albanil: Casco y chaleco.\n- granjera: Trenzas y camisa rosa. - exploradora: Sombrero y mochila. - buzo: Traje de buzo con gafas.\n\nANIMALES Y CRIATURAS (personaje de figura completa, sin poses):\nperro, gato, conejo, oso, panda, koala, zorro, leon, tigre, elefante, jirafa, cebra, caballo, vaca, cerdito, pollo, pato, buho, pinguino, rana, tortuga, pez, pulpo, mariposa, abeja, robot, alien, fantasma, dragon, unicornio, dinosaurio.\n\nOBJETOS NUEVOS (campo \"objeto\", se dibujan como figura grande):\npizza, hamburguesa, taco, burrito, helado, pastel, dona, galleta, chocolate, palomitas, zanahoria, platano, uvas, fresa, sandia, naranja, limon, pera, durazno, cereza, aguacate, elote, papas_fritas, huevo, pan, queso, ensalada, sopa, arroz, sushi, camaron, pescado, leche, cafe, te, jugo, refresco, mate, sarten, cuchara, tenedor, cuchillo, vaso, tetera, miel, regla, tijeras, clip, pincel, paleta, globo_terraqueo, tubo_ensayo, iman, bateria, vela, linterna, destornillador, caja_herramientas, escoba, balde, llave_casa, candado, campana, espejo, despertador, television, radio, impresora, sofa, cama, silla, bicicleta, motocicleta, tren, avion, barco, helicoptero, tractor, ambulancia, patrulla, camion_bomberos, taxi, camion, patineta, globo_aerostatico, ancla, semaforo, pino, cactus, girasol, rosa, tulipan, hoja, seta, caracola, copo_nieve, fuego, rayo, huella, hueso, tenis, beisbol, voleibol, futbol_americano, billar, boliche, medalla, guantes_box, patines, esquis, ajedrez, dados, diana, globo, confeti, pinata, corona, varita, guitarra, trompeta, violin, tambor, microfono, audifonos, carta, paquete, brujula, bolsa, diamante, tarjeta, curita, jeringa, pastilla, mascarilla, sombrilla, tornado, arco_iris, isla, castillo_e, estatua, diente, musculo.\n\nESCENARIOS NUEVOS (campo \"escenario\"):\n- volcan: Volcán en erupción con río de lava. - nieve: Paisaje nevado con muñeco de nieve.\n- selva: Selva densa con lianas. - fondo_marino: Bajo el mar, con corales y peces (oscuro).\n- castillo: Castillo medieval con banderas. - laboratorio: Laboratorio con matraces y microscopio.\n- circo: Carpa de circo con globos. - museo: Museo con cuadros y vitrinas.\n- estacion_espacial: Estación espacial con ventanal a la Tierra (oscuro).\n- cueva: Cueva con estalactitas y murciélagos (oscuro). - arcoiris: Campo con arcoíris grande.\n- otono: Bosque otoñal con hojas cayendo. - noche: Noche estrellada con luna llena (oscuro).\n- ciudad_noche: Ciudad de noche con ventanas encendidas (oscuro). - granja: Granja con granero y cerca.\n- puerto: Puerto con barco de vela. - vias: Vías del tren entre montañas.\n- iglu: Paisaje ártico con iglú. - piramides: Pirámides en el desierto al atardecer.\n- faro: Faro junto al mar con su haz de luz. - cascada: Cascada entre rocas.\n- puente: Puente de madera sobre un río al atardecer. - invernadero: Invernadero con plantas.\n\nESTILO PIRATAS (escenarios: barco_pirata, isla_tesoro, taberna):\n- capitan_pirata: Capitán con tricornio y barba. - marinera: Marinera con pañoleta roja y falda.\n- grumete: Niño grumete con camisa amarilla. - loro (criatura): Loro verde. - sirena (criatura): Sirena.\nObjetos: mapa_tesoro, bandera_pirata, barril, espada, garfio, timon, botella, bomba, moneda_oro.\n\nESTILO SUPERHÉROES (escenarios: azotea, ciudad_heroe, base_secreta):\n- heroe: Héroe con antifaz, camisa azul y pantalón rojo. - heroina: Heroína con antifaz y falda.\n- villano: Villano con capucha oscura. - murcielago (criatura). - arana (criatura): Araña.\nObjetos: escudo, mascara, bumeran, telarana, edificio, antena.\n\nESTILO DINOSAURIOS (escenarios: valle_jurasico, pantano, nido_dino):\n- cavernicola: Cavernícola de pelo revuelto. - cavernina: Cavernícola con falda.\n- paleontologo: Paleontólogo con sombrero y mochila. - tiranosaurio (criatura): Tiranosaurio rex.\nObjetos: huevo_dino, helecho, roca, palmera, volcan_e, meteoro.\n\nESTILO MAGIA (escenarios: bosque_encantado, torre_mago, aldea_fantasia):\n- mago_merlin: Mago de sombrero puntiagudo con estrellas y barba. - bruja: Bruja de sombrero negro.\n- aprendiz_mago: Aprendiz con sombrero de mago, más bajito. - hada (criatura). - elfo (criatura).\nObjetos: bola_cristal, pocion_magica, llave_antigua, estrella_fugaz, caldero, grimorio.\n\nESTILO MÉXICO (escenarios: plaza, fiesta, ofrenda, pueblo):\n- mariachi: Mariachi con sombrero charro bordado. - bailarina_folklorica: Bailarina con corona de flores y falda.\n- luchador: Luchador con máscara azul. - catrina: Catrina elegante con corona de flores.\n- aguila (criatura): Águila.\nObjetos: chile, trompo, loteria, jarro, bandera_mexico, cempasuchil.\n\nREGLAS: si un objeto o personaje no está en este catálogo, NO lo uses;\nelige el más parecido de la lista. Los escenarios van en el campo\n\"escenario\" de la escena; si no pones escenario, el fondo es el\nestándar del estilo (blanco con mancha menta en aprendiz, estrellado\nen retro).";
 
 /* =====================================================================
    MOTOR DE DIBUJO (portado de animaciones/ en Python)
@@ -445,6 +478,32 @@ const TIPOS_PERSONAJE = {
   unicornio:  { emoji: "🦄", escala: 0.95 },
   dinosaurio: { emoji: "🦕", escala: 1.1 }
 };
+Object.assign(TIPOS_PERSONAJE, {
+  capitan_pirata: { pelo: "tricornio", camisa: "#8e2f32", pantalon: "#3a3a4a", piel: "#f6c89f", barba: true },
+  marinera:    { pelo: "pirata", camisa: "#2f6db3", pantalon: "#5a3c78", piel: "#f6c89f", falda: true },
+  grumete:     { pelo: "corto", camisa: "#fac83c", pantalon: "#8a6d3b", piel: "#f6c89f", escala: 0.72 },
+  loro:        { emoji: "🦜", escala: 0.55 },
+  sirena:      { emoji: "🧜‍♀️", escala: 0.9 },
+  heroe:       { pelo: "antifaz", camisa: "#2456c8", pantalon: "#c82828", piel: "#f6c89f" },
+  heroina:     { pelo: "antifaz", camisa: "#c8287e", pantalon: "#5a3c78", piel: "#f6c89f", falda: true },
+  villano:     { pelo: "capucha", camisa: "#3a3a4a", pantalon: "#22222e", piel: "#e8b98d" },
+  murcielago:  { emoji: "🦇", escala: 0.5 },
+  arana:       { emoji: "🕷️", escala: 0.5 },
+  cavernicola: { pelo: "despeinado", camisa: "#b08954", pantalon: "#8a6d3b", piel: "#e8b98d" },
+  cavernina:   { pelo: "despeinado", camisa: "#c96f4a", pantalon: "#8a6d3b", piel: "#f6c89f", falda: true },
+  paleontologo:{ pelo: "sombrero", camisa: "#e8dcc0", pantalon: "#8a6d3b", piel: "#f6c89f", mochila: true },
+  tiranosaurio:{ emoji: "🦖", escala: 1.15 },
+  mago_merlin: { pelo: "sombrero_mago", camisa: "#3b2f8f", pantalon: "#2b2b3a", piel: "#f6c89f", barba: true },
+  bruja:       { pelo: "sombrero_bruja", camisa: "#4a2b5c", pantalon: "#2b2b3a", piel: "#cfe8b0", falda: true },
+  aprendiz_mago:{ pelo: "sombrero_mago", camisa: "#7e57c2", pantalon: "#3c3c50", piel: "#f6c89f", escala: 0.8 },
+  hada:        { emoji: "🧚", escala: 0.6 },
+  elfo:        { emoji: "🧝", escala: 0.85 },
+  mariachi:    { pelo: "sombrero_charro", camisa: "#2b2b3a", pantalon: "#2b2b3a", piel: "#e8b98d" },
+  bailarina_folklorica: { pelo: "tiara", camisa: "#e4572e", pantalon: "#c8287e", piel: "#f6c89f", falda: true },
+  luchador:    { pelo: "mascara_luchador", camisa: "#c82828", pantalon: "#2456c8", piel: "#e8b98d" },
+  catrina:     { pelo: "tiara", camisa: "#3a3a4a", pantalon: "#5a3c78", piel: "#f7f3ea", falda: true },
+  aguila:      { emoji: "🦅", escala: 0.6 }
+});
 function sombraColor(hex, d){
   const [r, g, b] = rgb(hex);
   return `rgb(${Math.max(0, r + d)},${Math.max(0, g + d)},${Math.max(0, b + d)})`;
@@ -533,6 +592,53 @@ function peloDibujo(c, x, hy, hr, s, estilo, color){
     casco();
     c.fillStyle = "#e33e3e"; c.fillRect(x - hr, hy - hr * 0.55, 2 * hr, 10 * s);
     POLY(c, [[x + hr, hy - hr * 0.5], [x + hr + 20 * s, hy - hr * 0.1], [x + hr + 2 * s, hy + 2 * s]]); c.fill();
+  } else if (estilo === "tricornio"){
+    c.fillStyle = "#2b2b3a"; EL(c, x, hy - hr * 0.55, hr * 1.3, hr * 0.52); c.fill();
+    c.beginPath(); c.arc(x, hy - hr * 0.3, hr * 0.8, Math.PI, 0); c.fill();
+    POLY(c, [[x - hr * 1.22, hy - hr * 0.42], [x - hr * 0.72, hy - hr * 1.0], [x - hr * 0.5, hy - hr * 0.3]]); c.fill();
+    POLY(c, [[x + hr * 1.22, hy - hr * 0.42], [x + hr * 0.72, hy - hr * 1.0], [x + hr * 0.5, hy - hr * 0.3]]); c.fill();
+    c.fillStyle = "#ffd23f"; EL(c, x, hy - hr * 1.04, 8 * s, 8 * s); c.fill();
+  } else if (estilo === "antifaz"){
+    c.fillStyle = "#22222e"; RR(c, x - hr * 0.98, hy - hr * 0.32, hr * 1.96, hr * 0.46, hr * 0.2); c.fill();
+    c.fillStyle = "#ffd23f"; EL(c, x, hy - hr * 0.09, 5 * s, 5 * s); c.fill();
+  } else if (estilo === "despeinado"){
+    casco();
+    c.fillStyle = color;
+    for (const dx of [-0.6, -0.2, 0.25, 0.65]){
+      POLY(c, [[x + dx * hr - 10 * s, hy - hr * 0.78], [x + dx * hr + 2 * s, hy - hr * 1.38], [x + dx * hr + 12 * s, hy - hr * 0.76]]); c.fill();
+    }
+    EL(c, x - hr - 2 * s, hy - hr * 0.05, 12 * s, 24 * s); c.fill();
+    EL(c, x + hr + 2 * s, hy - hr * 0.05, 12 * s, 24 * s); c.fill();
+  } else if (estilo === "sombrero_mago"){
+    c.fillStyle = "#3b2f8f"; EL(c, x, hy - hr * 0.5, hr * 1.35, hr * 0.34); c.fill();
+    POLY(c, [[x - hr * 0.62, hy - hr * 0.55], [x + hr * 0.1, hy - hr * 2.0], [x + hr * 0.66, hy - hr * 0.55]]); c.fill();
+    c.fillStyle = "#ffd23f";
+    EL(c, x - hr * 0.2, hy - hr * 1.15, 6 * s, 6 * s); c.fill();
+    EL(c, x + hr * 0.18, hy - hr * 0.85, 5 * s, 5 * s); c.fill();
+    EL(c, x + hr * 0.02, hy - hr * 1.5, 5 * s, 5 * s); c.fill();
+  } else if (estilo === "sombrero_bruja"){
+    c.fillStyle = "#26222e"; EL(c, x, hy - hr * 0.5, hr * 1.45, hr * 0.34); c.fill();
+    POLY(c, [[x - hr * 0.6, hy - hr * 0.55], [x - hr * 0.05, hy - hr * 1.8], [x + hr * 0.35, hy - hr * 1.98], [x + hr * 0.62, hy - hr * 0.55]]); c.fill();
+    c.fillStyle = "#7e57c2"; c.fillRect(x - hr * 0.6, hy - hr * 0.74, hr * 1.22, 9 * s);
+  } else if (estilo === "sombrero_charro"){
+    c.fillStyle = "#2b2b3a"; EL(c, x, hy - hr * 0.52, hr * 1.55, hr * 0.4); c.fill();
+    c.beginPath(); c.arc(x, hy - hr * 0.35, hr * 0.82, Math.PI, 0); c.fill();
+    c.fillStyle = "#ffd23f";
+    for (const dx of [-0.95, -0.48, 0, 0.48, 0.95]){ EL(c, x + dx * hr, hy - hr * 0.52, 4.5 * s, 4.5 * s); c.fill(); }
+  } else if (estilo === "mascara_luchador"){
+    c.fillStyle = "#2456c8"; EL(c, x, hy, hr * 1.05, hr * 1.05); c.fill();
+    c.fillStyle = "#ffd23f"; POLY(c, [[x - 7 * s, hy - hr * 1.04], [x + 7 * s, hy - hr * 1.04], [x, hy - hr * 0.28]]); c.fill();
+    c.fillStyle = "#ffffff"; c.fillRect(x - hr * 0.5, hy + hr * 0.52, hr, 5 * s);
+  } else if (estilo === "tiara"){
+    casco();
+    const colsT = ["#ff6b9d", "#ffd23f", "#ff8c42", "#e4572e", "#ff6b9d"];
+    for (let i = 0; i < 5; i++){
+      const a = Math.PI * (0.15 + 0.175 * i);
+      const fx = x + Math.cos(a) * hr * 0.94, fy = hy - Math.sin(a) * hr * 0.94;
+      c.fillStyle = colsT[i];
+      for (let p = 0; p < 5; p++){ const pa = p / 5 * Math.PI * 2; EL(c, fx + Math.cos(pa) * 6.5 * s, fy + Math.sin(pa) * 6.5 * s, 5.5 * s, 5.5 * s); c.fill(); }
+      c.fillStyle = "#fff3b0"; EL(c, fx, fy, 4 * s, 4 * s); c.fill();
+    }
   }
 }
 function dibujarPersona(c, x, piesY, s, o){
@@ -670,7 +776,13 @@ const ESCENARIOS_INFO = {
   noche: ["Noche estrellada", true], ciudad_noche: ["Ciudad de noche", true], granja: ["Granja", false],
   puerto: ["Puerto", false], vias: ["Vías del tren", false], iglu: ["Iglú", false],
   piramides: ["Pirámides", false], faro: ["Faro", false], cascada: ["Cascada", false],
-  puente: ["Puente", false], invernadero: ["Invernadero", false]
+  puente: ["Puente", false], invernadero: ["Invernadero", false],
+  pueblo: ["Pueblo", false],
+  barco_pirata: ["Barco pirata", false], isla_tesoro: ["Isla del tesoro", false], taberna: ["Taberna pirata", false],
+  azotea: ["Azotea", true], ciudad_heroe: ["Ciudad del héroe", false], base_secreta: ["Base secreta", true],
+  valle_jurasico: ["Valle jurásico", false], pantano: ["Pantano prehistórico", false], nido_dino: ["Nido de dinosaurio", false],
+  bosque_encantado: ["Bosque encantado", true], torre_mago: ["Torre del mago", true], aldea_fantasia: ["Aldea de fantasía", false],
+  plaza: ["Plaza", false], fiesta: ["Fiesta mexicana", true], ofrenda: ["Ofrenda", true]
 };
 function cielo(c, w, h, c1, c2){ const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, c1); g.addColorStop(1, c2); c.fillStyle = g; c.fillRect(0, 0, w, h); }
 function solDib(c, x, y, r){ c.fillStyle = "#fac828"; EL(c, x, y, r, r); c.fill(); c.strokeStyle = "#fac828"; c.lineWidth = 5; for (let i = 0; i < 8; i++){ const a = i * Math.PI / 4; LINE(c, x + Math.cos(a) * (r + 6), y + Math.sin(a) * (r + 6), x + Math.cos(a) * (r + 20), y + Math.sin(a) * (r + 20), "#fac828", 5); } }
@@ -682,6 +794,27 @@ function casaDib(c, x, baseY, s){ c.fillStyle = "#f0c88c"; c.fillRect(x - 44 * s
 // --- escenarios nuevos (Edición Ampliada) ---
 function sueloGen(c, w, h, col){ c.fillStyle = col; c.fillRect(0, h * 0.845, w, h * 0.155); }
 const ESCENARIOS_EXT = {
+  pueblo(c, w, h, t){ cielo(c, w, h, "#aee3ff", "#eafaff");
+    nubeDib(c, w * 0.18, h * 0.09, 1.0, "#ffffff"); nubeDib(c, w * 0.85, h * 0.13, 0.8, "#ffffff");
+    c.fillStyle = "#8fb573"; POLY(c, [[0, h * 0.845], [w * 0.3, h * 0.42], [w * 0.62, h * 0.845]]); c.fill();
+    c.fillStyle = "#7ba763"; POLY(c, [[w * 0.45, h * 0.845], [w * 0.78, h * 0.5], [w, h * 0.845]]); c.fill();
+    c.fillStyle = "#fdf6e3"; c.fillRect(w * 0.06, h * 0.52, w * 0.2, h * 0.325);
+    c.fillStyle = "#e2725b"; POLY(c, [[w * 0.04, h * 0.52], [w * 0.16, h * 0.44], [w * 0.28, h * 0.52]]); c.fill();
+    c.fillStyle = "#fdf6e3"; c.fillRect(w * 0.115, h * 0.36, w * 0.09, h * 0.1);
+    c.fillStyle = "#e2725b"; POLY(c, [[w * 0.1, h * 0.36], [w * 0.16, h * 0.3], [w * 0.22, h * 0.36]]); c.fill();
+    c.fillStyle = "#5a3c78"; c.fillRect(w * 0.148, h * 0.385, w * 0.024, h * 0.045);
+    c.fillStyle = "#8a6d3b"; c.fillRect(w * 0.135, h * 0.66, w * 0.05, h * 0.185);
+    const casasP = [["#ffb703", 0.32], ["#fb7185", 0.47], ["#4cc9f0", 0.62], ["#80ed99", 0.77]];
+    for (const [colP, fxP] of casasP){
+      c.fillStyle = colP; c.fillRect(w * fxP, h * 0.6, w * 0.13, h * 0.245);
+      c.fillStyle = "#9c6644"; POLY(c, [[w * (fxP - 0.012), h * 0.6], [w * (fxP + 0.065), h * 0.545], [w * (fxP + 0.142), h * 0.6]]); c.fill();
+      c.fillStyle = "#fff8e1"; c.fillRect(w * (fxP + 0.04), h * 0.68, w * 0.05, h * 0.07);
+    }
+    c.strokeStyle = "rgba(90,60,20,0.55)"; c.lineWidth = 2; c.beginPath();
+    c.moveTo(w * 0.3, h * 0.47); c.quadraticCurveTo(w * 0.5, h * 0.53, w * 0.7, h * 0.47); c.stroke();
+    const colsP = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8", "#a78bfa"];
+    for (let i = 0; i < 5; i++){ c.fillStyle = colsP[i]; c.fillRect(w * (0.36 + i * 0.065), h * 0.487 + Math.sin(i * 1.2) * h * 0.006, w * 0.045, h * 0.035); }
+    sueloGen(c, w, h, "#d9c9a3"); },
   volcan(c, w, h, t){ cielo(c, w, h, "#f7b267", "#f4845f");
     nubeDib(c, w * 0.2, h * 0.1, 1.1, "#ffe8d6"); nubeDib(c, w * 0.82, h * 0.16, 0.9, "#ffe8d6");
     c.fillStyle = "#6e4a3a"; POLY(c, [[w * 0.08, h * 0.845], [w * 0.5, h * 0.3], [w * 0.92, h * 0.845]]); c.fill();
@@ -946,6 +1079,243 @@ const ESCENARIOS_EXT = {
     c.fillStyle = "#e2725b"; for (let i = 0; i < 5; i++) c.fillRect(w * (0.14 + i * 0.16), h * 0.8, 20, 14);
     sueloGen(c, w, h, "#6fae6a"); }
 };
+
+Object.assign(ESCENARIOS_EXT, {
+  barco_pirata(c, w, h, t){ cielo(c, w, h, "#7ec8f7", "#dff6ff");
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.85, h * 0.1, 42, 42); c.fill();
+    nubeDib(c, w * 0.2, h * 0.08, 1.0, "#ffffff");
+    c.fillStyle = "#2a9d8f"; c.fillRect(0, h * 0.6, w, h * 0.4);
+    c.strokeStyle = "rgba(255,255,255,0.5)"; c.lineWidth = 3;
+    for (let i = 0; i < 5; i++){ c.beginPath(); c.arc(w * (0.12 + i * 0.2), h * (0.66 + (i % 2) * 0.05), 26, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
+    c.fillStyle = "#6e4a2f"; c.fillRect(w * 0.47, h * 0.16, w * 0.035, h * 0.62);
+    c.fillStyle = "#fdf6e3"; POLY(c, [[w * 0.5, h * 0.2], [w * 0.5, h * 0.55], [w * 0.78, h * 0.55]]); c.fill();
+    c.fillStyle = "#1d1d26"; c.fillRect(w * 0.42, h * 0.1, w * 0.13, h * 0.055);
+    c.fillStyle = "#ffffff"; EL(c, w * 0.485, h * 0.128, 11, 11); c.fill();
+    c.fillStyle = "#8a5a3b"; POLY(c, [[0, h * 0.845], [w * 0.06, h * 0.72], [w * 0.94, h * 0.72], [w, h * 0.845]]); c.fill();
+    sueloGen(c, w, h, "#7c4a2d");
+    c.fillStyle = "#9c6644"; RR(c, w * 0.1, h * 0.76, w * 0.11, h * 0.085, 8); c.fill();
+    c.fillStyle = "#9c6644"; RR(c, w * 0.8, h * 0.76, w * 0.11, h * 0.085, 8); c.fill(); },
+  isla_tesoro(c, w, h, t){ cielo(c, w, h, "#8fd8f8", "#e8fbff");
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.12, h * 0.09, 40, 40); c.fill();
+    c.fillStyle = "#2a9d8f"; c.fillRect(0, h * 0.34, w, h * 0.66);
+    c.strokeStyle = "rgba(255,255,255,0.45)"; c.lineWidth = 3;
+    for (let i = 0; i < 4; i++){ c.beginPath(); c.arc(w * (0.15 + i * 0.24), h * (0.42 + (i % 2) * 0.07), 24, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
+    c.fillStyle = "#eed9a4"; EL(c, w * 0.5, h * 0.845, w * 0.52, h * 0.1); c.fill();
+    c.strokeStyle = "#9c6644"; c.lineWidth = 9; c.beginPath(); c.moveTo(w * 0.52, h * 0.83); c.quadraticCurveTo(w * 0.56, h * 0.68, w * 0.5, h * 0.58); c.stroke();
+    c.fillStyle = "#3d9970";
+    for (const a of [-0.9, -0.45, 0, 0.45, 0.9]){ POLY(c, [[w * 0.5, h * 0.58], [w * (0.5 + Math.sin(a) * 0.16), h * (0.5 + Math.abs(a) * 0.03)], [w * (0.5 + Math.sin(a) * 0.05), h * 0.56]]); c.fill(); }
+    c.strokeStyle = "#e33e3e"; c.lineWidth = 8;
+    LINE(c, w * 0.3, h * 0.8, w * 0.4, h * 0.87, "#e33e3e", 8); LINE(c, w * 0.4, h * 0.8, w * 0.3, h * 0.87, "#e33e3e", 8);
+    c.fillStyle = "#8a5a3b"; RR(c, w * 0.66, h * 0.79, w * 0.13, h * 0.05, 6); c.fill();
+    c.fillStyle = "#ffd23f"; c.fillRect(w * 0.66, h * 0.805, w * 0.13, h * 0.008); },
+  taberna(c, w, h, t){ c.fillStyle = "#a9803e"; c.fillRect(0, 0, w, h);
+    c.strokeStyle = "rgba(90,60,20,0.35)"; c.lineWidth = 2;
+    for (let i = 1; i < 6; i++){ LINE(c, 0, h * i / 6, w, h * i / 6, "rgba(90,60,20,0.35)", 2); }
+    c.fillStyle = "#5a3c78"; EL(c, w * 0.5, h * 0.3, w * 0.17, w * 0.17); c.fill();
+    c.fillStyle = "#8fd8f8"; EL(c, w * 0.5, h * 0.3, w * 0.145, w * 0.145); c.fill();
+    c.fillStyle = "#2a9d8f"; c.fillRect(w * 0.36, h * 0.36, w * 0.28, h * 0.035);
+    LINE(c, w * 0.5, 0, w * 0.5, h * 0.52, "#5a4632", 5);
+    c.fillStyle = "rgba(255,190,80,0.3)"; EL(c, w * 0.5, h * 0.58, 52, 52); c.fill();
+    c.fillStyle = "#ffbe50"; EL(c, w * 0.5, h * 0.58, 20, 26); c.fill();
+    c.fillStyle = "#7c4a2d"; c.fillRect(0, h * 0.78, w, h * 0.035);
+    c.fillStyle = "#9c6644"; RR(c, w * 0.08, h * 0.68, w * 0.13, h * 0.1, 8); c.fill();
+    c.fillStyle = "#9c6644"; RR(c, w * 0.79, h * 0.68, w * 0.13, h * 0.1, 8); c.fill();
+    sueloGen(c, w, h, "#6e4525"); },
+  azotea(c, w, h, t){ cielo(c, w, h, "#3b2f63", "#e2703a");
+    let semA = 7; const rndA = () => (semA = (semA * 16807) % 2147483647) / 2147483647;
+    c.fillStyle = "rgba(255,255,255,0.8)";
+    for (let i = 0; i < 26; i++){ c.fillRect(rndA() * w, rndA() * h * 0.3, 2.5, 2.5); }
+    c.fillStyle = "rgba(255,240,180,0.28)"; POLY(c, [[w * 0.62, h * 0.66], [w * 0.8, h * 0.1], [w * 0.97, h * 0.13], [w * 0.72, h * 0.66]]); c.fill();
+    c.fillStyle = "#241f3a"; c.fillRect(0, h * 0.66, w * 0.3, h * 0.34); c.fillRect(w * 0.68, h * 0.62, w * 0.32, h * 0.38);
+    c.fillStyle = "#2e2752"; RR(c, w * 0.1, h * 0.52, w * 0.09, h * 0.14, 4); c.fill();
+    POLY(c, [[w * 0.08, h * 0.52], [w * 0.145, h * 0.44], [w * 0.21, h * 0.52]]); c.fill();
+    sueloGen(c, w, h, "#241f3a"); },
+  ciudad_heroe(c, w, h, t){ cielo(c, w, h, "#7ec8f7", "#e8f7ff");
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.88, h * 0.08, 38, 38); c.fill();
+    nubeDib(c, w * 0.25, h * 0.1, 1.0, "#ffffff");
+    const eds = [[0.02, 0.3, 0.16], [0.2, 0.22, 0.15], [0.37, 0.36, 0.17], [0.56, 0.26, 0.15], [0.73, 0.33, 0.16], [0.9, 0.24, 0.12]];
+    const colsE = ["#8d99ae", "#6c7a99", "#9db2ce", "#7f8ea8", "#a8bdd8", "#6c7a99"];
+    eds.forEach(([fx, fh, fw], i) => {
+      c.fillStyle = colsE[i]; c.fillRect(w * fx, h * (0.845 - fh), w * fw, h * fh);
+      c.fillStyle = "#ffe98a";
+      for (let r2 = 0; r2 < 4; r2++) for (let c2 = 0; c2 < 3; c2++){ if ((r2 * 3 + c2 + i) % 3) c.fillRect(w * (fx + 0.02 + c2 * fw * 0.3), h * (0.845 - fh + 0.04 + r2 * fh * 0.2), w * 0.022, h * 0.025); }
+    });
+    sueloGen(c, w, h, "#5a5f6e");
+    c.fillStyle = "#ffd23f"; for (let i = 0; i < 4; i++) c.fillRect(w * (0.08 + i * 0.26), h * 0.915, w * 0.12, h * 0.008); },
+  base_secreta(c, w, h, t){ c.fillStyle = "#23283b"; c.fillRect(0, 0, w, h);
+    c.fillStyle = "#171b29"; c.fillRect(0, h * 0.845, w, h * 0.155);
+    c.fillStyle = "#0e2a3a"; RR(c, w * 0.18, h * 0.14, w * 0.64, h * 0.34, 14); c.fill();
+    c.strokeStyle = "#39d0ff"; c.lineWidth = 3; RR(c, w * 0.18, h * 0.14, w * 0.64, h * 0.34, 14); c.stroke();
+    c.strokeStyle = "#39d0ff"; c.lineWidth = 2.5; c.beginPath();
+    c.moveTo(w * 0.24, h * 0.4); c.lineTo(w * 0.38, h * 0.28); c.lineTo(w * 0.5, h * 0.34); c.lineTo(w * 0.64, h * 0.2); c.lineTo(w * 0.76, h * 0.26); c.stroke();
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.5, h * 0.56, 34, 34); c.fill();
+    c.fillStyle = "#23283b"; EL(c, w * 0.5, h * 0.56, 24, 24); c.fill();
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.5, h * 0.56, 9, 9); c.fill();
+    for (let i = 0; i < 6; i++){ const enc = Math.sin(t * 2.4 + i * 1.7) > 0; c.fillStyle = enc ? "#4ade80" : "#39415e"; EL(c, w * (0.14 + i * 0.14), h * 0.68, 8, 8); c.fill(); }
+    c.fillStyle = "#39415e"; c.fillRect(w * 0.1, h * 0.72, w * 0.8, h * 0.03); },
+  valle_jurasico(c, w, h, t){ cielo(c, w, h, "#a8e063", "#eafbd7");
+    nubeDib(c, w * 0.8, h * 0.09, 0.9, "#ffffff");
+    c.fillStyle = "#7a6a5f"; POLY(c, [[w * 0.02, h * 0.62], [w * 0.18, h * 0.34], [w * 0.34, h * 0.62]]); c.fill();
+    c.fillStyle = "#ff7043"; EL(c, w * 0.18, h * 0.35, 16, 10); c.fill();
+    c.fillStyle = "#3d9970";
+    for (const fx of [0.08, 0.3, 0.62, 0.88]){
+      for (const a of [-0.7, -0.35, 0, 0.35, 0.7]){ POLY(c, [[w * fx, h * 0.845], [w * (fx + Math.sin(a) * 0.09), h * (0.62 + Math.abs(a) * 0.05)], [w * (fx + 0.03), h * 0.845]]); c.fill(); }
+    }
+    sueloGen(c, w, h, "#5da24a");
+    c.fillStyle = "rgba(60,50,30,0.35)";
+    EL(c, w * 0.42, h * 0.9, 20, 12); c.fill(); EL(c, w * 0.56, h * 0.94, 20, 12); c.fill(); EL(c, w * 0.48, h * 0.975, 20, 12); c.fill(); },
+  pantano(c, w, h, t){ cielo(c, w, h, "#cfe8b0", "#eef9e0");
+    c.fillStyle = "#6a994e"; c.fillRect(0, h * 0.45, w, h * 0.55);
+    c.fillStyle = "rgba(255,255,255,0.35)"; c.fillRect(0, h * 0.5, w, h * 0.045); c.fillRect(0, h * 0.62, w, h * 0.035);
+    c.strokeStyle = "#3d6b35"; c.lineWidth = 5;
+    for (const fx of [0.06, 0.16, 0.84, 0.94]){ LINE(c, w * fx, h * 0.98, w * fx, h * 0.6, "#3d6b35", 5); c.fillStyle = "#8a5a3b"; RR(c, w * fx - 7, h * 0.58, 14, 34, 6); c.fill(); }
+    c.fillStyle = "#4e9a51";
+    EL(c, w * 0.34, h * 0.74, 44, 16); c.fill(); EL(c, w * 0.62, h * 0.82, 52, 18); c.fill(); EL(c, w * 0.48, h * 0.64, 36, 13); c.fill();
+    c.fillStyle = "#ff8fab"; EL(c, w * 0.62, h * 0.8, 10, 10); c.fill(); },
+  nido_dino(c, w, h, t){ cielo(c, w, h, "#a8e063", "#eafbd7");
+    c.fillStyle = "#3d9970";
+    for (const fx of [0.05, 0.95]){ for (const a of [-0.6, 0, 0.6]){ POLY(c, [[w * fx, h * 0.845], [w * (fx + Math.sin(a) * 0.08), h * 0.6], [w * (fx + 0.025), h * 0.845]]); c.fill(); } }
+    sueloGen(c, w, h, "#7a9a4d");
+    c.fillStyle = "#8a5a3b"; EL(c, w * 0.5, h * 0.845, w * 0.56, h * 0.075); c.fill();
+    c.fillStyle = "#6e4525"; EL(c, w * 0.5, h * 0.83, w * 0.44, h * 0.05); c.fill();
+    c.fillStyle = "#fdf6e3";
+    EL(c, w * 0.4, h * 0.79, 34, 44); c.fill(); EL(c, w * 0.52, h * 0.775, 38, 48); c.fill(); EL(c, w * 0.63, h * 0.79, 34, 44); c.fill();
+    c.fillStyle = "#e8dcc0"; EL(c, w * 0.52, h * 0.75, 10, 7); c.fill();
+    c.fillStyle = "#f5f0e0"; EL(c, w * 0.14, h * 0.9, 22, 10); c.fill(); EL(c, w * 0.86, h * 0.93, 18, 9); c.fill(); },
+  bosque_encantado(c, w, h, t){ c.fillStyle = "#241b3a"; c.fillRect(0, 0, w, h);
+    let semB = 3; const rndB = () => (semB = (semB * 16807) % 2147483647) / 2147483647;
+    c.fillStyle = "rgba(255,255,255,0.75)";
+    for (let i = 0; i < 34; i++){ c.fillRect(rndB() * w, rndB() * h * 0.5, 2.4, 2.4); }
+    c.fillStyle = "#f5f0d0"; EL(c, w * 0.84, h * 0.1, 34, 34); c.fill();
+    c.fillStyle = "#171126"; POLY(c, [[w * 0.02, h * 0.845], [w * 0.07, h * 0.3], [w * 0.13, h * 0.845]]); c.fill();
+    POLY(c, [[w * 0.87, h * 0.845], [w * 0.93, h * 0.26], [w * 0.99, h * 0.845]]); c.fill();
+    sueloGen(c, w, h, "#1c1430");
+    const setas = [[0.24, "#39d0ff"], [0.36, "#ff8fab"], [0.66, "#4ade80"], [0.78, "#c084fc"]];
+    for (const [fx, col] of setas){
+      c.fillStyle = "rgba(255,255,255,0.16)"; EL(c, w * fx, h * 0.79, 44, 40); c.fill();
+      c.fillStyle = "#e8e0d0"; c.fillRect(w * fx - 5, h * 0.79, 10, h * 0.055);
+      c.fillStyle = col; EL(c, w * fx, h * 0.785, 30, 17); c.fill();
+    }
+    c.fillStyle = "#ffe066";
+    for (let i = 0; i < 12; i++){ const fx = 0.1 + 0.8 * ((i * 37 % 10) / 10), fy = 0.35 + 0.3 * ((i * 53 % 10) / 10) + 0.012 * Math.sin(t * 1.5 + i); EL(c, w * fx, h * fy, 4.5, 4.5); c.fill(); } },
+  torre_mago(c, w, h, t){ c.fillStyle = "#4a4157"; c.fillRect(0, 0, w, h);
+    c.fillStyle = "#241b3a"; RR(c, w * 0.36, h * 0.08, w * 0.28, h * 0.3, 60); c.fill();
+    c.fillStyle = "#f5f0d0"; EL(c, w * 0.56, h * 0.16, 15, 15); c.fill();
+    c.fillStyle = "rgba(255,255,255,0.85)"; c.fillRect(w * 0.42, h * 0.13, 3, 3); c.fillRect(w * 0.47, h * 0.22, 3, 3); c.fillRect(w * 0.6, h * 0.26, 3, 3);
+    c.fillStyle = "#6e4525"; c.fillRect(w * 0.06, h * 0.44, w * 0.3, h * 0.02);
+    const libs = ["#c0392b", "#2471a3", "#229954", "#b7950b", "#7d3c98", "#ca6f1e"];
+    libs.forEach((col, i) => { c.fillStyle = col; c.fillRect(w * (0.075 + i * 0.045), h * 0.36, w * 0.036, h * 0.08); });
+    const pociones = [[0.78, "#4ade80"], [0.85, "#ff8fab"], [0.92, "#39d0ff"]];
+    for (const [fx, col] of pociones){ c.fillStyle = col; RR(c, w * fx, h * 0.38, w * 0.045, h * 0.06, 8); c.fill(); c.fillStyle = "#d8cfc0"; c.fillRect(w * (fx + 0.014), h * 0.362, w * 0.017, h * 0.02); }
+    c.fillStyle = "#5a4632"; c.fillRect(w * 0.2, h * 0.72, w * 0.6, h * 0.03);
+    c.fillStyle = "rgba(160,220,255,0.5)"; EL(c, w * 0.5, h * 0.65, 40, 40); c.fill();
+    c.fillStyle = "#8a6d3b"; POLY(c, [[w * 0.44, h * 0.72], [w * 0.56, h * 0.72], [w * 0.53, h * 0.685], [w * 0.47, h * 0.685]]); c.fill();
+    sueloGen(c, w, h, "#332a40"); },
+  aldea_fantasia(c, w, h, t){ cielo(c, w, h, "#aee3ff", "#f2ffe8");
+    nubeDib(c, w * 0.2, h * 0.09, 1.0, "#ffffff");
+    c.fillStyle = "#8fd07a"; POLY(c, [[0, h * 0.845], [w * 0.3, h * 0.55], [w * 0.6, h * 0.845]]); c.fill();
+    POLY(c, [[w * 0.45, h * 0.845], [w * 0.75, h * 0.58], [w, h * 0.845]]); c.fill();
+    const casasF = [[0.1, "#fdf6e3", "#c96f4a"], [0.42, "#ffe8ec", "#8e5aa8"], [0.72, "#e3f2fd", "#4a7ab5"]];
+    for (const [fx, pared, techo] of casasF){
+      c.fillStyle = pared; c.fillRect(w * fx, h * 0.64, w * 0.2, h * 0.205);
+      c.fillStyle = techo; POLY(c, [[w * (fx - 0.02), h * 0.64], [w * (fx + 0.1), h * 0.52], [w * (fx + 0.22), h * 0.64]]); c.fill();
+      c.fillStyle = "#8a5a3b"; c.fillRect(w * (fx + 0.075), h * 0.72, w * 0.05, h * 0.125);
+      c.fillStyle = "#ffe98a"; c.fillRect(w * (fx + 0.02), h * 0.68, w * 0.04, h * 0.05);
+    }
+    LINE(c, w * 0.3, h * 0.845, w * 0.3, h * 0.66, "#5a4632", 5); LINE(c, w * 0.68, h * 0.845, w * 0.68, h * 0.66, "#5a4632", 5);
+    c.fillStyle = "rgba(255,190,80,0.35)"; EL(c, w * 0.3, h * 0.65, 26, 26); c.fill(); EL(c, w * 0.68, h * 0.65, 26, 26); c.fill();
+    c.fillStyle = "#ffbe50"; EL(c, w * 0.3, h * 0.65, 10, 12); c.fill(); EL(c, w * 0.68, h * 0.65, 10, 12); c.fill();
+    sueloGen(c, w, h, "#79b264"); },
+  plaza(c, w, h, t){ cielo(c, w, h, "#aee3ff", "#eafaff");
+    nubeDib(c, w * 0.85, h * 0.08, 0.9, "#ffffff");
+    for (const fx of [0.08, 0.92]){
+      c.fillStyle = "#8a5a3b"; c.fillRect(w * fx - 6, h * 0.55, 12, h * 0.295);
+      c.fillStyle = "#3d9970"; EL(c, w * fx, h * 0.48, 74, 84); c.fill();
+    }
+    c.fillStyle = "#fdf6e3"; c.fillRect(w * 0.36, h * 0.62, w * 0.28, h * 0.06);
+    for (const fx of [0.39, 0.485, 0.58]){ c.fillStyle = "#e8e0d0"; c.fillRect(w * fx, h * 0.5, w * 0.02, h * 0.12); }
+    c.fillStyle = "#c0392b"; POLY(c, [[w * 0.33, h * 0.5], [w * 0.5, h * 0.38], [w * 0.67, h * 0.5]]); c.fill();
+    c.fillStyle = "#c0392b"; EL(c, w * 0.5, h * 0.375, 17, 15); c.fill();
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.5, h * 0.345, 7, 7); c.fill();
+    c.strokeStyle = "rgba(90,60,20,0.5)"; c.lineWidth = 2; c.beginPath(); c.moveTo(0, h * 0.16); c.quadraticCurveTo(w * 0.5, h * 0.24, w, h * 0.16); c.stroke();
+    const colsZ = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8", "#a78bfa", "#fb923c"];
+    for (let i = 0; i < 6; i++){ c.fillStyle = colsZ[i]; c.fillRect(w * (0.1 + i * 0.14), h * (0.185 + Math.sin(i * 0.9) * 0.008), w * 0.07, h * 0.04); }
+    c.fillStyle = "#8a5a3b"; RR(c, w * 0.16, h * 0.76, w * 0.14, h * 0.025, 5); c.fill(); RR(c, w * 0.7, h * 0.76, w * 0.14, h * 0.025, 5); c.fill();
+    sueloGen(c, w, h, "#d9c9a3"); },
+  fiesta(c, w, h, t){ cielo(c, w, h, "#5b3a6e", "#ff9e5e");
+    c.strokeStyle = "rgba(30,16,40,0.7)"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(0, h * 0.12); c.quadraticCurveTo(w * 0.5, h * 0.22, w, h * 0.12); c.stroke();
+    c.beginPath(); c.moveTo(0, h * 0.26); c.quadraticCurveTo(w * 0.5, h * 0.35, w, h * 0.26); c.stroke();
+    const colsF = ["#ffd23f", "#ff6b9d", "#4ade80", "#38bdf8", "#ff8c42"];
+    for (let i = 0; i < 9; i++){ const fx = 0.06 + i * 0.11, fy = 0.145 + Math.sin(i * 0.7) * 0.018; c.fillStyle = colsF[i % 5]; EL(c, w * fx, h * fy, 8, 8); c.fill(); }
+    for (let i = 0; i < 6; i++){ c.fillStyle = colsF[(i + 2) % 5]; c.fillRect(w * (0.12 + i * 0.13), h * 0.3, w * 0.06, h * 0.045); }
+    LINE(c, w * 0.5, h * 0.3, w * 0.5, h * 0.42, "rgba(30,16,40,0.7)", 2.5);
+    c.fillStyle = "#ff6b9d"; POLY(c, [[w * 0.5, h * 0.42], [w * 0.56, h * 0.5], [w * 0.535, h * 0.6], [w * 0.465, h * 0.6], [w * 0.44, h * 0.5]]); c.fill();
+    c.fillStyle = "#ffd23f"; POLY(c, [[w * 0.5, h * 0.42], [w * 0.53, h * 0.5], [w * 0.5, h * 0.6], [w * 0.47, h * 0.5]]); c.fill();
+    c.fillStyle = "#5a4632"; c.fillRect(w * 0.12, h * 0.74, w * 0.3, h * 0.025);
+    for (let i = 0; i < 3; i++){ c.fillStyle = "#ffbe50"; EL(c, w * (0.18 + i * 0.09), h * 0.715, 6 + Math.sin(t * 3 + i) * 1.5, 10); c.fill(); }
+    sueloGen(c, w, h, "#6e4a3a"); },
+  ofrenda(c, w, h, t){ c.fillStyle = "#2e1f1a"; c.fillRect(0, 0, w, h);
+    const colsO = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8"];
+    for (let i = 0; i < 4; i++){ c.fillStyle = colsO[i]; c.fillRect(w * (0.14 + i * 0.19), h * 0.07, w * 0.11, h * 0.055); }
+    c.fillStyle = "#5a4632";
+    c.fillRect(w * 0.14, h * 0.66, w * 0.72, h * 0.03);
+    c.fillRect(w * 0.24, h * 0.52, w * 0.52, h * 0.03);
+    c.fillRect(w * 0.34, h * 0.38, w * 0.32, h * 0.03);
+    for (let i = 0; i < 7; i++){ const fx = 0.2 + i * 0.1; c.fillStyle = "#f5eeda"; c.fillRect(w * fx - 4, h * 0.615, 8, h * 0.045); c.fillStyle = "#ffbe50"; EL(c, w * fx, h * 0.6 + Math.sin(t * 3.2 + i * 1.3) * 2, 5.5, 9); c.fill(); }
+    for (let i = 0; i < 5; i++){ const fx = 0.3 + i * 0.1; c.fillStyle = "#f5eeda"; c.fillRect(w * fx - 4, h * 0.475, 8, h * 0.045); c.fillStyle = "#ffbe50"; EL(c, w * fx, h * 0.46 + Math.cos(t * 2.8 + i) * 2, 5.5, 9); c.fill(); }
+    c.fillStyle = "#8a6d3b"; RR(c, w * 0.44, h * 0.24, w * 0.12, h * 0.13, 4); c.fill();
+    c.fillStyle = "#e8dcc0"; RR(c, w * 0.455, h * 0.255, w * 0.09, h * 0.1, 3); c.fill();
+    c.fillStyle = "#fb923c";
+    for (let i = 0; i < 16; i++){ const fx = 0.12 + (i % 8) * 0.105, fy = 0.72 + Math.floor(i / 8) * 0.05; EL(c, w * fx, h * fy, 9, 9); c.fill(); }
+    c.fillStyle = "#ffd23f";
+    for (let i = 0; i < 16; i++){ const fx = 0.12 + (i % 8) * 0.105, fy = 0.72 + Math.floor(i / 8) * 0.05; EL(c, w * fx, h * fy, 3.5, 3.5); c.fill(); }
+    sueloGen(c, w, h, "#241612"); },
+  fondo_piratas(c, w, h, t){ cielo(c, w, h, "#7ec8f7", "#dff6ff");
+    c.fillStyle = "#ffd23f"; EL(c, w * 0.85, h * 0.1, 42, 42); c.fill();
+    nubeDib(c, w * 0.22, h * 0.14, 1.0, "#ffffff");
+    c.fillStyle = "#2a9d8f"; c.fillRect(0, h * 0.66, w, h * 0.34);
+    c.strokeStyle = "rgba(255,255,255,0.5)"; c.lineWidth = 3;
+    for (let i = 0; i < 5; i++){ c.beginPath(); c.arc(w * (0.12 + i * 0.2), h * (0.74 + (i % 2) * 0.06), 26, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
+    sueloGen(c, w, h, "#1f7a6d"); },
+  fondo_superheroes(c, w, h, t){ cielo(c, w, h, "#2c2450", "#b5502e");
+    let semS = 11; const rndS = () => (semS = (semS * 16807) % 2147483647) / 2147483647;
+    c.fillStyle = "rgba(255,255,255,0.8)";
+    for (let i = 0; i < 22; i++){ c.fillRect(rndS() * w, rndS() * h * 0.34, 2.4, 2.4); }
+    c.fillStyle = "#1d1836";
+    const altS = [0.3, 0.42, 0.26, 0.48, 0.34, 0.4, 0.28];
+    altS.forEach((fh, i) => { c.fillRect(w * (i * 0.145), h * (0.845 - fh), w * 0.15, h * fh); });
+    c.fillStyle = "#ffe98a";
+    altS.forEach((fh, i) => { for (let r2 = 0; r2 < 3; r2++){ if ((r2 + i) % 2) c.fillRect(w * (i * 0.145 + 0.03), h * (0.845 - fh + 0.05 + r2 * 0.09), w * 0.024, h * 0.03); } });
+    sueloGen(c, w, h, "#17132a"); },
+  fondo_dinosaurios(c, w, h, t){ cielo(c, w, h, "#a8e063", "#eafbd7");
+    nubeDib(c, w * 0.75, h * 0.1, 0.9, "#ffffff");
+    c.fillStyle = "#79b264"; POLY(c, [[0, h * 0.845], [w * 0.35, h * 0.5], [w * 0.7, h * 0.845]]); c.fill();
+    POLY(c, [[w * 0.4, h * 0.845], [w * 0.72, h * 0.56], [w, h * 0.845]]); c.fill();
+    c.fillStyle = "#2f7a4e";
+    for (const fx of [0.06, 0.94]){ for (const a of [-0.6, 0, 0.6]){ POLY(c, [[w * fx, h * 0.9], [w * (fx + Math.sin(a) * 0.07), h * 0.68], [w * (fx + 0.02), h * 0.9]]); c.fill(); } }
+    sueloGen(c, w, h, "#4e8f3e"); },
+  fondo_magia(c, w, h, t){ c.fillStyle = "#241b3a"; c.fillRect(0, 0, w, h);
+    const g = c.createRadialGradient(w / 2, h * 0.34, 10, w / 2, h * 0.34, w * 0.75);
+    g.addColorStop(0, "rgba(126,87,194,0.55)"); g.addColorStop(1, "rgba(36,27,58,0)");
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    let semM = 5; const rndM = () => (semM = (semM * 16807) % 2147483647) / 2147483647;
+    c.fillStyle = "rgba(255,255,255,0.85)";
+    for (let i = 0; i < 40; i++){ c.fillRect(rndM() * w, rndM() * h * 0.6, 2.4, 2.4); }
+    c.fillStyle = "#f5f0d0"; EL(c, w * 0.82, h * 0.12, 30, 30); c.fill();
+    c.fillStyle = "#ffe066";
+    for (let i = 0; i < 10; i++){ const fx = 0.12 + 0.76 * ((i * 31 % 10) / 10), fy = 0.4 + 0.28 * ((i * 47 % 10) / 10) + 0.012 * Math.sin(t * 1.6 + i * 2); EL(c, w * fx, h * fy, 4.5, 4.5); c.fill(); }
+    sueloGen(c, w, h, "#1c1430"); },
+  fondo_mexico(c, w, h, t){ cielo(c, w, h, "#ffd9a0", "#fff3d6");
+    c.fillStyle = "#ffb703"; EL(c, w * 0.5, h * 0.3, 52, 52); c.fill();
+    c.strokeStyle = "rgba(90,60,20,0.5)"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(0, h * 0.1); c.quadraticCurveTo(w * 0.5, h * 0.18, w, h * 0.1); c.stroke();
+    c.beginPath(); c.moveTo(0, h * 0.22); c.quadraticCurveTo(w * 0.5, h * 0.3, w, h * 0.22); c.stroke();
+    const colsX = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8", "#a78bfa", "#fb923c"];
+    for (let i = 0; i < 6; i++){ c.fillStyle = colsX[i]; c.fillRect(w * (0.08 + i * 0.145), h * (0.125 + Math.sin(i * 0.9) * 0.008), w * 0.075, h * 0.042); }
+    for (let i = 0; i < 5; i++){ c.fillStyle = colsX[(i + 3) % 6]; c.fillRect(w * (0.15 + i * 0.145), h * (0.245 + Math.cos(i * 0.8) * 0.008), w * 0.075, h * 0.042); }
+    sueloGen(c, w, h, "#d9a05b"); }
+});
 
 function dibujarEscenario(c, nombre, w, h, t){
   if (ESCENARIOS_EXT[nombre]){ ESCENARIOS_EXT[nombre](c, w, h, t); return; }
@@ -1401,6 +1771,14 @@ const OBJETOS_EMOJI = {
   "musculo": "💪"
 };
 
+Object.assign(OBJETOS_EMOJI, {
+  mapa_tesoro: "🗺️", bandera_pirata: "🏴‍☠️", barril: "🛢️", espada: "⚔️", garfio: "🪝",
+  timon: "☸️", botella: "🍾", bomba: "💣", moneda_oro: "🪙",
+  escudo: "🛡️", mascara: "🎭", bumeran: "🪃", telarana: "🕸️", edificio: "🏢", antena: "📡",
+  huevo_dino: "🥚", helecho: "🌿", roca: "🪨", palmera: "🌴", volcan_e: "🌋", meteoro: "☄️",
+  bola_cristal: "🔮", pocion_magica: "⚗️", llave_antigua: "🗝️", estrella_fugaz: "🌠", caldero: "🫕", grimorio: "📕",
+  chile: "🌶️", trompo: "🪀", loteria: "🎴", jarro: "🏺", bandera_mexico: "🇲🇽", cempasuchil: "🌼"
+});
 const IMG_CACHE = {};
 function cargarImagen(url){
   if (!url) return null;
@@ -1765,6 +2143,7 @@ function dibujarObjeto(c, nombre, cx, cy, s, color, t){
 const OBJETOS_CATALOGO = ["libro", "monedas", "billetes", "alcancia", "grafico", "puerta", "arbol", "planta", "casa", "escuela", "carro", "autobus", "trofeo", "sol", "nube", "lluvia", "cohete", "planeta", "microscopio", "adn", "foco", "reloj", "calendario", "martillo", "estetoscopio", "manzana", "comida", "regalo", "bandera", "lapiz", "mochila", "flor", "computadora", "gota", "lampara_calle", "lampara_mano", "camara", "telefono", "calculadora", "cuaderno", "mapa", "balon_futbol", "balon_basquet", "silbato", "corazon", "estrella", "luna", "telescopio", "cerebro", "llave", "jupiter", "pizza", "hamburguesa", "taco", "burrito", "helado", "pastel", "dona", "galleta", "chocolate", "palomitas", "zanahoria", "platano", "uvas", "fresa", "sandia", "naranja", "limon", "pera", "durazno", "cereza", "aguacate", "elote", "papas_fritas", "huevo", "pan", "queso", "ensalada", "sopa", "arroz", "sushi", "camaron", "pescado", "leche", "cafe", "te", "jugo", "refresco", "mate", "sarten", "cuchara", "tenedor", "cuchillo", "vaso", "tetera", "miel", "regla", "tijeras", "clip", "pincel", "paleta", "globo_terraqueo", "tubo_ensayo", "iman", "bateria", "vela", "linterna", "destornillador", "caja_herramientas", "escoba", "balde", "llave_casa", "candado", "campana", "espejo", "despertador", "television", "radio", "impresora", "sofa", "cama", "silla", "bicicleta", "motocicleta", "tren", "avion", "barco", "helicoptero", "tractor", "ambulancia", "patrulla", "camion_bomberos", "taxi", "camion", "patineta", "globo_aerostatico", "ancla", "semaforo", "pino", "cactus", "girasol", "rosa", "tulipan", "hoja", "seta", "caracola", "copo_nieve", "fuego", "rayo", "huella", "hueso", "tenis", "beisbol", "voleibol", "futbol_americano", "billar", "boliche", "medalla", "guantes_box", "patines", "esquis", "ajedrez", "dados", "diana", "globo", "confeti", "pinata", "corona", "varita", "guitarra", "trompeta", "violin", "tambor", "microfono", "audifonos", "carta", "paquete", "brujula", "bolsa", "diamante", "tarjeta", "curita", "jeringa", "pastilla", "mascarilla", "sombrilla", "tornado", "arco_iris", "montana_emoji", "isla", "castillo_e", "estatua", "taza", "libro_emoji", "mochila_emoji", "sombrero_fiesta", "anillo", "tijeras_papel", "pulgar", "mano", "ojo", "oreja", "nariz", "boca", "cerebro_emoji", "hueso_emoji", "diente", "pie", "musculo"];
 
 /* --- render de escenas (portado de animaciones/estilos.py) --- */
+OBJETOS_CATALOGO.push("mapa_tesoro", "bandera_pirata", "barril", "espada", "garfio", "timon", "botella", "bomba", "moneda_oro", "escudo", "mascara", "bumeran", "telarana", "edificio", "antena", "huevo_dino", "helecho", "roca", "palmera", "volcan_e", "meteoro", "bola_cristal", "pocion_magica", "llave_antigua", "estrella_fugaz", "caldero", "grimorio", "chile", "trompo", "loteria", "jarro", "bandera_mexico", "cempasuchil");
 const INK = "#2b2b3a", BG_PASTEL = "#f0f0f5";
 const mapaPoses = { stand: "pie", pie: "pie", walk: "caminando", caminando: "caminando", point: "senalando", senalando: "senalando", sentado: "sentado", thumbs: "saludando", saludando: "saludando" };
 const COLORES_RUEDA = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8", "#a78bfa", "#fb923c", "#ff8fab", "#facc15"];
@@ -1957,18 +2336,21 @@ function dibujarElemento(c, elem, t, dur){
     console.warn("Elemento aprendiz desconocido:", tipo);
   }
 }
-function renderAprendiz(c, escena, t, dur){
+function renderAprendiz(c, escena, t, dur, estilo){
+  const fondoEstilo = !escena.escenario && estilo && FONDOS_ESTILO[estilo];
   if (escena.escenario){
     dibujarEscenario(c, escena.escenario, W, H, t);
+  } else if (fondoEstilo){
+    ESCENARIOS_EXT[fondoEstilo](c, W, H, t);
   } else {
     c.fillStyle = "#ffffff"; c.fillRect(0, 0, W, H);
   }
-  const conMancha = escena.mancha !== undefined ? escena.mancha : !escena.escenario;
+  const conMancha = escena.mancha !== undefined ? escena.mancha : (!escena.escenario && !fondoEstilo);
   if (conMancha){
     dibujarMancha(c, 360, 780, 330, 330, "#d8f3dc");
     dibujarMancha(c, 400, 810, 264, 247, "#bfe8d8");
   }
-  const oscuro = escena.escenario && ESCENARIOS_INFO[escena.escenario] && ESCENARIOS_INFO[escena.escenario][1];
+  const oscuro = (escena.escenario && ESCENARIOS_INFO[escena.escenario] && ESCENARIOS_INFO[escena.escenario][1]) || (fondoEstilo && FONDOS_OSCUROS[estilo]);
   if (escena.rotulo) tituloManuscrito(c, escena.rotulo, 100, 76, W * 0.92, oscuro ? "#ffffff" : PAL.negro);
   for (const elem of (escena.elementos || [])) dibujarElemento(c, elem, t, dur);
 }
@@ -2088,8 +2470,13 @@ function renderRetro(c, estilo, escena, t, dur){
     c.fillRect(0, 0, W, H);
   }
 }
+const ESTILOS_TEMATICOS = ["piratas", "superheroes", "dinosaurios", "magia", "mexico"];
+const FONDOS_ESTILO = { piratas: "fondo_piratas", superheroes: "fondo_superheroes", dinosaurios: "fondo_dinosaurios", magia: "fondo_magia", mexico: "fondo_mexico" };
+const FONDOS_OSCUROS = { magia: 1, superheroes: 1 };
+const PISTA_ESTILO = { piratas: "aventura", superheroes: "alegre", dinosaurios: "misterio", magia: "calma", mexico: "fiesta" };
+function esAprendiz(e){ return e === "aprendiz" || ESTILOS_TEMATICOS.indexOf(e) >= 0; }
 function renderEscena(c, estilo, escena, t, dur){
-  if (estilo === "aprendiz") renderAprendiz(c, escena, t, dur);
+  if (esAprendiz(estilo)) renderAprendiz(c, escena, t, dur, estilo);
   else renderRetro(c, estilo, escena, t, dur);
 }
 
@@ -2202,6 +2589,29 @@ function cargarVoces(){
   if (sel.value !== previa) sel.value = "auto";
   sel.onchange = () => { vozElegida = sel.value; };
   sel._voces = voces;
+  const selR = $("voz-rapida");
+  if (selR){
+    const prevR = selR.value || "auto";
+    selR.innerHTML = '<option value="auto">Automática (español)</option>';
+    const g1r = document.createElement("optgroup"); g1r.label = "🎭 Personajes de voz";
+    Object.entries(PRESETS_VOZ).forEach(([id, pr]) => {
+      const o = document.createElement("option");
+      o.value = "p:" + id; o.textContent = pr.nombre;
+      g1r.appendChild(o);
+    });
+    selR.appendChild(g1r);
+    if (voces.length){
+      const g2r = document.createElement("optgroup"); g2r.label = "Voces del dispositivo";
+      voces.forEach((v, i) => {
+        const o = document.createElement("option");
+        o.value = "v" + i; o.textContent = v.name + " (" + v.lang + ")";
+        g2r.appendChild(o);
+      });
+      selR.appendChild(g2r);
+    }
+    selR.value = prevR;
+    if (selR.value !== prevR) selR.value = "auto";
+  }
 }
 
 function hablar(texto){
@@ -2300,10 +2710,10 @@ function conMusica(){
   const sel = $("musica").value;
   if (sel === "no") return false;
   if (sel.indexOf("pista:") === 0) return sel.slice(6);
-  const esRetro = spec && spec.estilo && spec.estilo !== "aprendiz";
+  const esRetro = spec && spec.estilo && !esAprendiz(spec.estilo);
   if (sel === "si") return esRetro ? "retro" : "alegre";
   if (!spec) return "calma";
-  if (spec.estilo === "aprendiz") return spec.musica ? "calma" : false;
+  if (esAprendiz(spec.estilo)) return spec.musica ? (PISTA_ESTILO[spec.estilo] || "calma") : false;
   return spec.musica === false ? false : "retro";
 }
 
@@ -2379,7 +2789,7 @@ async function generarGuion(){
     const s = await llamarIA(construirPrompt());
     if (!s.escenas || !s.escenas.length) throw new Error("La IA no devolvió escenas.");
     s.estilo = $("estilo").value;
-    s.velocidad = s.estilo === "aprendiz" ? 0.95 : 1.0;
+    s.velocidad = esAprendiz(s.estilo) ? 0.95 : 1.0;
     cargarSpec(s);
     est.textContent = "✓ Guion listo: " + s.escenas.length + " escenas, ~" + Math.round(duracionTotal()) + " s. Revísalas abajo y exporta.";
     est.className = "estado ok";
@@ -2411,6 +2821,8 @@ async function crearVideoRapido(){
   $("duracion").value = $("duracion-rapido").value;
   $("tema").value = prompt;
   $("contenido").value = prompt;
+  vozElegida = $("voz-rapida").value;
+  if ($("voz")) $("voz").value = vozElegida;
   $("btn-rapido").disabled = true;
   $("resultado-rapido").classList.add("oculto");
   $("zona-rapido").innerHTML = "";
@@ -2422,7 +2834,10 @@ async function crearVideoRapido(){
     const s = await llamarIA(construirPrompt());
     if (!s.escenas || !s.escenas.length) throw new Error("La IA no devolvió escenas.");
     s.estilo = $("estilo").value;
-    s.velocidad = s.estilo === "aprendiz" ? 0.95 : 1.0;
+    s.velocidad = esAprendiz(s.estilo) ? 0.95 : 1.0;
+    if (vozElegida.indexOf("p:") === 0) s.voz = vozElegida.slice(2);
+    const fondoSel = $("fondo-rapido").value;
+    if (fondoSel !== "auto") s.escenas.forEach(e2 => { e2.escenario = fondoSel; });
     cargarSpec(s);
     setProgresoRapido(25, "Guion listo: " + s.escenas.length + " escenas. Creando tu video…");
     const res = await exportarVideo({
@@ -2563,7 +2978,7 @@ function renderEditor(){
     const h = document.createElement("h3");
     h.textContent = "Escena " + (i + 1) + (esc.tipo ? " · " + esc.tipo : esc.rotulo ? " · " + esc.rotulo : "");
     card.appendChild(h);
-    if (spec.estilo === "aprendiz"){
+    if (esAprendiz(spec.estilo)){
       card.appendChild(campoTexto("Rótulo (en pantalla)", esc.rotulo, v => { esc.rotulo = v; dibujarFotograma(tiempoActual); }));
       card.appendChild(campoSelect("Escenario", [["", "Sin escenario (fondo blanco)"], ...Object.keys(ESCENARIOS_INFO).map(k => [k, ESCENARIOS_INFO[k][0]])], esc.escenario || "", v => { esc.escenario = v || undefined; dibujarFotograma(tiempoActual); }));
       card.appendChild(bloqueImagenAPI(esc));
@@ -2607,7 +3022,7 @@ function renderEditor(){
 function agregarEscena(){
   if (!spec){ cargarSpec(ejemploBlanco()); return; }
   const estilo = spec.estilo;
-  const nueva = estilo === "aprendiz"
+  const nueva = esAprendiz(estilo)
     ? { rotulo: "NUEVA ESCENA", narracion: "Escribe aquí la narración de esta escena.", elementos: [{ tipo: "personaje", personaje: "hombre", x: 360, y: 1080, escala: 1.0, pose: "pie", expresion: "contento" }] }
     : { tipo: "definicion", subtitulo: "Nueva idea.", sprite: "cerebro", narracion: "Nueva idea." };
   spec.escenas.push(nueva);
@@ -2791,6 +3206,18 @@ $("btn-reiniciar").onclick = () => { reiniciarVista(); dibujarFotograma(0); };
 $("btn-exportar").onclick = exportarVideo;
 $("btn-portada").onclick = exportarPortada;
 $("btn-guion").onclick = copiarGuion;
+(function(){
+  const selF = $("fondo-rapido");
+  if (selF){
+    const ya = new Set([...selF.options].map(o => o.value));
+    Object.keys(ESCENARIOS_INFO).forEach(k => {
+      if (ya.has(k)) return;
+      const o = document.createElement("option");
+      o.value = k; o.textContent = ESCENARIOS_INFO[k][0];
+      selF.appendChild(o);
+    });
+  }
+})();
 $("btn-rapido").onclick = crearVideoRapido;
 $("btn-avanzado").onclick = () => { $("modo-avanzado").classList.remove("oculto"); $("btn-avanzado").classList.add("oculto"); };
 $("btn-volver-rapido").onclick = () => { $("modo-avanzado").classList.add("oculto"); $("btn-avanzado").classList.remove("oculto"); };
