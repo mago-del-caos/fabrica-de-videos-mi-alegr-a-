@@ -784,6 +784,47 @@ function peloDibujo(c, x, hy, hr, s, estilo, color){
       c.fillStyle = "#fff3b0"; EL(c, fx, fy, 4 * s, 4 * s); c.fill();
     }
   }
+ else if (estilo === "afro"){
+    for (const [dx, dy, rr] of [[-0.75, -0.45, 0.42], [-0.38, -0.78, 0.48], [0, -0.9, 0.52], [0.38, -0.78, 0.48], [0.75, -0.45, 0.42], [-0.55, -0.15, 0.4], [0.55, -0.15, 0.4], [0, -0.45, 0.55]]){
+      EL(c, x + dx * hr, hy + dy * hr, rr * hr, rr * hr); c.fill();
+    }
+  } else if (estilo === "puntas"){
+    casco();
+    for (const dx of [-0.7, -0.35, 0, 0.35, 0.7]){
+      POLY(c, [[x + dx * hr - 11 * s, hy - hr * 0.72], [x + dx * hr + 3 * s, hy - hr * 1.45], [x + dx * hr + 13 * s, hy - hr * 0.7]]); c.fill();
+    }
+  } else if (estilo === "flequillo"){
+    casco();
+    c.fillRect(x - hr, hy - hr * 0.28, 2 * hr, hr * 0.3);
+    RR(c, x - hr - 4 * s, hy - hr * 0.3, 15 * s, hr * 0.95, 7 * s); c.fill();
+    RR(c, x + hr - 11 * s, hy - hr * 0.3, 15 * s, hr * 0.95, 7 * s); c.fill();
+  } else if (estilo === "trenza_una"){
+    casco();
+    for (let i2 = 0; i2 < 4; i2++){ EL(c, x + hr * 0.82 - i2 * 3 * s, hy + hr * (0.1 + i2 * 0.42), 13 * s, 16 * s); c.fill(); }
+    c.fillStyle = "#fa648c"; EL(c, x + hr * 0.82 - 9 * s, hy - hr * 0.08, 7 * s, 7 * s); c.fill();
+    EL(c, x + hr * 0.82 - 12 * s, hy + hr * 1.82, 6 * s, 6 * s); c.fill(); c.fillStyle = color;
+  } else if (estilo === "ondulado"){
+    casco();
+    for (const dx of [-0.55, 0, 0.55]){ EL(c, x + dx * hr, hy - hr * 0.92, hr * 0.42, hr * 0.3); c.fill(); }
+    EL(c, x - hr - 2 * s, hy - hr * 0.1, 11 * s, 20 * s); c.fill();
+    EL(c, x + hr + 2 * s, hy - hr * 0.1, 11 * s, 20 * s); c.fill();
+  } else if (estilo === "rapado"){
+    c.beginPath(); c.arc(x, hy, hr * 0.97, Math.PI, 0); c.fill();
+    c.fillRect(x - hr * 0.97, hy - 3 * s, 2 * hr * 0.97, 5 * s);
+    c.fillStyle = "rgba(0,0,0,0.18)";
+    for (const dx of [-0.6, -0.2, 0.25, 0.6]){ EL(c, x + dx * hr, hy - hr * 0.55, 3.4 * s, 3.4 * s); c.fill(); }
+  } else if (estilo === "melenudo"){
+    casco();
+    RR(c, x - hr - 8 * s, hy - hr, 22 * s, hr + 96 * s, 11 * s); c.fill();
+    RR(c, x + hr - 14 * s, hy - hr, 22 * s, hr + 96 * s, 11 * s); c.fill();
+    for (const dx of [-0.5, 0, 0.5]){ EL(c, x + dx * hr, hy - hr * 0.95, hr * 0.36, hr * 0.26); c.fill(); }
+  } else if (estilo === "chongo"){
+    casco();
+    EL(c, x, hy - hr - 13 * s, 17 * s, 15 * s); c.fill();
+    c.fillStyle = "#e33e3e"; c.fillRect(x - 15 * s, hy - hr - 4 * s, 30 * s, 7 * s); c.fillStyle = color;
+    EL(c, x - hr - 1 * s, hy - hr * 0.02, 9 * s, 17 * s); c.fill();
+    EL(c, x + hr + 1 * s, hy - hr * 0.02, 9 * s, 17 * s); c.fill();
+  }
 }
 function dibChema(c, x, piesY, s, o){
   const t = (o && o.t) || 0, cam = s;
@@ -3697,7 +3738,7 @@ Object.assign(ESCENARIOS_EXT, {
     sueloGen(c, w, h, "#ecd28f"); }
 });
 const INK = "#2b2b3a", BG_PASTEL = "#f0f0f5";
-const mapaPoses = { stand: "pie", pie: "pie", walk: "caminando", caminando: "caminando", point: "senalando", senalando: "senalando", sentado: "sentado", thumbs: "saludando", saludando: "saludando" };
+const mapaPoses = { stand: "pie", pie: "pie", walk: "caminando", caminando: "caminando", point: "senalando", senalando: "senalando", sentado: "sentado", thumbs: "saludando", saludando: "saludando", jump: "saltando", saltando: "saltando", run: "corriendo", corriendo: "corriendo", dance: "bailando", bailando: "bailando", think: "pensando", pensando: "pensando", celebrate: "celebrando", celebrando: "celebrando", read: "leyendo", leyendo: "leyendo" };
 const COLORES_RUEDA = ["#ff6b9d", "#ffd23f", "#4ade80", "#38bdf8", "#a78bfa", "#fb923c", "#ff8fab", "#facc15"];
 
 function estimarDuracionEscena(esc, velocidad){
@@ -4221,7 +4262,11 @@ function dibujarPalitos(c, x, piesY, s, o){
   const caderaY = piesY - pierna, cuelloY = caderaY - torso, cabezaY = cuelloY - r - 6 * u;
   const t = o.t || 0, pose = o.pose || "pie", fase = o.fase || 0;
   const bob = pose === "caminando" ? Math.abs(Math.sin(fase)) * -6 * u : 0;
-  const cy = bob;
+  let cy = bob;
+  if (pose === "saltando") cy = -Math.abs(Math.sin(t * 3.1)) * 30 * u;
+  else if (pose === "celebrando") cy = -Math.abs(Math.sin(t * 2.6)) * 13 * u;
+  else if (pose === "bailando") cy = -Math.abs(Math.sin(t * 4.4)) * 8 * u;
+  else if (pose === "corriendo") cy = -Math.abs(Math.sin(t * 7.2)) * 6 * u;
   c.strokeStyle = "#f5f7fa"; c.fillStyle = "#f5f7fa"; c.lineWidth = 9 * u; c.lineCap = "round"; c.lineJoin = "round";
   // piernas
   c.beginPath();
@@ -4232,6 +4277,9 @@ function dibujarPalitos(c, x, piesY, s, o){
   }
   else if (pose === "caminando"){ const f = Math.sin(fase) * 30 * u; c.moveTo(x, caderaY + cy); c.lineTo(x - 16 * u + f, piesY); c.moveTo(x, caderaY + cy); c.lineTo(x + 16 * u - f, piesY); }
   else if (pose === "sentado"){ c.moveTo(x, caderaY); c.lineTo(x - 34 * u, caderaY); c.lineTo(x - 34 * u, piesY); c.moveTo(x, caderaY); c.lineTo(x + 34 * u, caderaY); c.lineTo(x + 34 * u, piesY); }
+  else if (pose === "saltando"){ c.moveTo(x, caderaY + cy); c.lineTo(x - 22 * u, caderaY + cy + 46 * u); c.lineTo(x - 30 * u, caderaY + cy + 76 * u); c.moveTo(x, caderaY + cy); c.lineTo(x + 22 * u, caderaY + cy + 46 * u); c.lineTo(x + 30 * u, caderaY + cy + 76 * u); }
+  else if (pose === "corriendo"){ const f = Math.sin(t * 7.2) * 40 * u; c.moveTo(x, caderaY + cy); c.lineTo(x - 18 * u + f, caderaY + cy + 50 * u); c.lineTo(x - 24 * u + f * 1.5, caderaY + cy + 96 * u); c.moveTo(x, caderaY + cy); c.lineTo(x + 18 * u - f, caderaY + cy + 50 * u); c.lineTo(x + 24 * u - f * 1.5, caderaY + cy + 70 * u); }
+  else if (pose === "bailando"){ const f = Math.sin(t * 4.4) * 15 * u; c.moveTo(x, caderaY + cy); c.lineTo(x - 20 * u + f, piesY); c.moveTo(x, caderaY + cy); c.lineTo(x + 20 * u + f, piesY); }
   else { c.moveTo(x, caderaY + cy); c.lineTo(x - 24 * u, piesY); c.moveTo(x, caderaY + cy); c.lineTo(x + 24 * u, piesY); }
   c.stroke();
   // torso
@@ -4242,8 +4290,15 @@ function dibujarPalitos(c, x, piesY, s, o){
   if (pose === "saludando"){ const w2 = Math.sin(t * 6) * 10 * u; c.moveTo(x, hombroY + cy); c.lineTo(x - 40 * u, hombroY + 34 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 42 * u, hombroY - 44 * u + cy + w2); }
   else if (pose === "senalando"){ c.moveTo(x, hombroY + cy); c.lineTo(x - 40 * u, hombroY + 34 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 52 * u, hombroY + 2 * u + cy); }
   else if (pose === "caminando"){ const f2 = Math.sin(fase) * 18 * u; c.moveTo(x, hombroY + cy); c.lineTo(x - 30 * u + f2, hombroY + 40 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 30 * u - f2, hombroY + 40 * u + cy); }
+  else if (pose === "bailando"){ const alt = Math.sin(t * 4.4) > 0; c.moveTo(x, hombroY + cy); c.lineTo(x - 44 * u, hombroY - (alt ? 54 : 14) * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 44 * u, hombroY - (alt ? 14 : 54) * u + cy); }
+  else if (pose === "celebrando"){ c.moveTo(x, hombroY + cy); c.lineTo(x - 48 * u, hombroY - 50 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 48 * u, hombroY - 50 * u + cy); }
+  else if (pose === "pensando"){ c.moveTo(x, hombroY + cy); c.lineTo(x - 38 * u, hombroY + 40 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 30 * u, hombroY + 30 * u + cy); c.lineTo(x + 10 * u, cabezaY + r * 0.72 + cy); }
+  else if (pose === "leyendo"){ c.moveTo(x, hombroY + cy); c.lineTo(x - 30 * u, hombroY + 46 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 30 * u, hombroY + 46 * u + cy); }
+  else if (pose === "saltando"){ c.moveTo(x, hombroY + cy); c.lineTo(x - 50 * u, hombroY - 30 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 50 * u, hombroY - 30 * u + cy); }
+  else if (pose === "corriendo"){ const g = Math.sin(t * 7.2) * 16 * u; c.moveTo(x, hombroY + cy); c.lineTo(x - 34 * u, hombroY + 26 * u + cy); c.lineTo(x - 14 * u + g, hombroY + 2 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 34 * u, hombroY + 26 * u + cy); c.lineTo(x + 14 * u - g, hombroY + 2 * u + cy); }
   else { c.moveTo(x, hombroY + cy); c.lineTo(x - 38 * u, hombroY + 38 * u + cy); c.moveTo(x, hombroY + cy); c.lineTo(x + 38 * u, hombroY + 38 * u + cy); }
   c.stroke();
+  if (pose === "leyendo"){ c.lineWidth = 4.6 * u; c.strokeRect(x - 28 * u, hombroY + 22 * u + cy, 56 * u, 40 * u); c.beginPath(); c.moveTo(x, hombroY + 22 * u + cy); c.lineTo(x, hombroY + 62 * u + cy); c.stroke(); }
   // cabeza
   if (conf.robot){
     c.fillStyle = "#0d2136"; RR(c, x - r * 0.92, cabezaY - r * 0.92 + cy, r * 1.84, r * 1.84, 10 * u); c.fill();
@@ -4392,7 +4447,12 @@ const FONDOS_LETRAS = {
 };
 function renderLetras(c, escena, t, dur){
   const par = FONDOS_LETRAS[escena.fondo] || FONDOS_LETRAS.negro;
-  cielo(c, W, H, par[0], par[1]);
+  const trans = escena.transicion || "fundido";
+  if (trans === "zoom"){
+    const q = clamp(t / (dur * 0.3), 0, 1), esc = 1.14 - 0.14 * (1 - Math.pow(1 - q, 3));
+    c.save(); c.translate(W / 2, H / 2); c.scale(esc, esc); c.translate(-W / 2, -H / 2);
+    cielo(c, W, H, par[0], par[1]); c.restore();
+  } else cielo(c, W, H, par[0], par[1]);
   // partículas suaves, deterministas por el texto
   const sem = semillaDe(escena.texto || escena.narracion || "letras");
   const rnd = rngSemilla(sem);
@@ -4428,6 +4488,7 @@ function renderLetras(c, escena, t, dur){
   if (escalaT !== 1){ c.translate(W / 2, H * 0.52); c.scale(escalaT, escalaT); c.translate(-W / 2, -H * 0.52); }
   c.globalAlpha = Math.max(0, Math.min(1, alpha));
   if (efecto === "brillo"){ c.shadowColor = "#ffd23f"; c.shadowBlur = 18 + 14 * Math.sin(t * 3.2); }
+  if (efecto === "neon"){ c.shadowColor = Math.sin(t * 1.7) > 0 ? "#22d3ee" : "#e879f9"; c.shadowBlur = 30 + 12 * Math.sin(t * 5.1); }
   let consumidos = 0;
   lineas.forEach((linea, li) => {
     const y = y0 + li * altoLin;
@@ -4440,15 +4501,17 @@ function renderLetras(c, escena, t, dur){
     }
     const ancho = c.measureText(visible).width;
     let x = W / 2 - ancho / 2 + dxTotal;
-    if (efecto === "olas" || efecto === "rebote"){
+    if (efecto === "olas" || efecto === "rebote" || efecto === "cascada" || efecto === "giro"){
       // letra por letra
       let cx2 = W / 2 - c.measureText(linea).width / 2 + dxTotal;
       const visibles = efecto === "tecleo" ? visible : linea;
       for (let ci = 0; ci < visibles.length; ci++){
         const ch = visibles[ci];
         const wch = c.measureText(ch).width;
-        let dy = 0;
+        let dy = 0, rot = 0;
         if (efecto === "olas") dy = Math.sin(t * 4 + ci * 0.55 + li) * 7;
+        else if (efecto === "cascada"){ const q = clamp((t - ci * 0.05) / (dur * 0.35), 0, 1); const e = 1 - Math.pow(1 - q, 3); dy = -300 * (1 - e); if (q <= 0) { cx2 += wch; continue; } }
+        else if (efecto === "giro"){ const q = clamp((t - ci * 0.05) / (dur * 0.3), 0, 1); rot = (1 - (1 - Math.pow(1 - q, 3))) * 1.15; if (q <= 0) { cx2 += wch; continue; } }
         else { const q = clamp((t - ci * 0.045) / (dur * 0.3), 0, 1); const e = 1 - Math.pow(1 - q, 3); dy = -46 * (1 - e) + Math.sin(q * Math.PI) * -8 * (q < 1 ? 1 : 0); if (q <= 0) { cx2 += wch; continue; } }
         c.fillStyle = "#ffffff";
         if (clave){
@@ -4456,12 +4519,20 @@ function renderLetras(c, escena, t, dur){
           const idx = linea.indexOf(clave);
           if (idx >= 0 && ci >= idx && ci < idx + clave.length) c.fillStyle = "#ffd23f";
         }
-        c.fillText(ch, cx2, y + dy);
+        if (rot){ c.save(); c.translate(cx2 + wch / 2, y + dy - tam * 0.35); c.rotate(rot); c.fillText(ch, -wch / 2, tam * 0.35); c.restore(); }
+        else c.fillText(ch, cx2, y + dy);
         cx2 += wch;
       }
       return;
     }
     // línea completa con palabra clave resaltada
+    if (efecto === "glitch"){
+      const salto = (Math.sin(t * 13.7 + li * 3.1) > 0.86) ? 15 : 0;
+      c.save(); c.globalAlpha = c.globalAlpha * 0.55;
+      c.fillStyle = "#ff3355"; c.fillText(visible, x - 4.5 + salto, y);
+      c.fillStyle = "#33e0ff"; c.fillText(visible, x + 4.5 - salto, y);
+      c.restore();
+    }
     c.fillStyle = "#ffffff";
     c.fillText(visible, x, y);
     if (clave && visible.includes(clave)){
@@ -4480,9 +4551,23 @@ function renderLetras(c, escena, t, dur){
     c.fillStyle = "#ffd23f";
     c.fillRect(W * 0.14, y0 + altoTot + 18, W * 0.72 * (1 - Math.pow(1 - q, 3)), 7);
   }
-  // transición: fundido a negro al entrar y al salir
-  const fund = Math.min(clamp(t / 0.35, 0, 1), clamp((dur - t) / 0.35, 0, 1));
-  if (fund < 1){ c.fillStyle = `rgba(0,0,0,${(1 - fund).toFixed(3)})`; c.fillRect(0, 0, W, H); }
+  // transiciones entre escenas
+  if (trans === "barrido"){
+    c.fillStyle = "#ffd23f";
+    if (t < 0.45) c.fillRect(0, 0, W * (1 - (1 - Math.pow(1 - clamp(t / 0.45, 0, 1), 3))), H);
+    if (dur - t < 0.45) c.fillRect(0, 0, W * (1 - (1 - Math.pow(1 - clamp((dur - t) / 0.45, 0, 1), 3))), H);
+  } else if (trans === "glitch"){
+    if (t < 0.3 || dur - t < 0.3){
+      let sem2 = semillaDe(texto + Math.floor(t * 9));
+      const rnd2 = rngSemilla(sem2);
+      c.fillStyle = "rgba(255,51,85,0.5)"; c.fillRect(0, rnd2() * H, W, 12 + rnd2() * 26);
+      c.fillStyle = "rgba(51,224,255,0.5)"; c.fillRect(0, rnd2() * H, W, 10 + rnd2() * 20);
+      c.fillStyle = "rgba(255,255,255,0.35)"; c.fillRect(0, rnd2() * H, W, 5 + rnd2() * 9);
+    }
+  } else if (trans !== "zoom"){
+    const fund = Math.min(clamp(t / 0.35, 0, 1), clamp((dur - t) / 0.35, 0, 1));
+    if (fund < 1){ c.fillStyle = `rgba(0,0,0,${(1 - fund).toFixed(3)})`; c.fillRect(0, 0, W, H); }
+  }
 }
 const TIPOS_CYBER = {
   hacker: { neon: "#22d3ee", traje: "#0b2239", visor: "#22d3ee" },
@@ -4496,7 +4581,7 @@ const TIPOS_CYBER = {
 };
 function dibujarPersonaCyber(c, x, piesY, s, o){
   const conf = TIPOS_CYBER[o.tipo] || TIPOS_CYBER.hacker;
-  const neon = conf.neon, traje = conf.traje;
+  const neon = o.tinte || conf.neon, traje = o.tinte || conf.traje;
   const u = s;
   const t = o.t || 0, pose = o.pose || "pie";
   const pierna = 118 * u, torso = 128 * u, r = 44 * u;
@@ -4533,7 +4618,7 @@ function dibujarPersonaCyber(c, x, piesY, s, o){
   if (conf.audifonos){ c.strokeStyle = neon; c.lineWidth = 6 * u; c.beginPath(); c.arc(x, cabezaY - r * 0.15 + bob, r * 1.12, Math.PI * 1.05, Math.PI * 1.95); c.stroke(); c.fillStyle = neon; RR(c, x - r - 10 * u, cabezaY - 8 * u + bob, 13 * u, 30 * u, 5 * u); c.fill(); RR(c, x + r - 3 * u, cabezaY - 8 * u + bob, 13 * u, 30 * u, 5 * u); c.fill(); }
   // visor o ojos
   if (conf.visor){
-    c.fillStyle = conf.visor; RR(c, x - r * 0.68, cabezaY - r * 0.18 + bob, r * 1.36, r * 0.34, r * 0.17); c.fill();
+    c.fillStyle = o.tinte || conf.visor; RR(c, x - r * 0.68, cabezaY - r * 0.18 + bob, r * 1.36, r * 0.34, r * 0.17); c.fill();
   } else {
     c.fillStyle = neon;
     EL(c, x - r * 0.36, cabezaY - r * 0.05 + bob, 4.6 * u, 6 * u); c.fill();
@@ -4624,11 +4709,11 @@ const ESCENARIOS_CYBER = {
     c.strokeStyle = "#22d3ee"; c.beginPath(); c.moveTo(w * 0.56, h * 0.62); c.lineTo(w * 0.78, h * 0.52); c.lineTo(w, h * 0.62); c.stroke(); c.restore();
     c.fillStyle = "#0a1030"; c.fillRect(0, h * 0.88, w, h * 0.12); }
 };
-function dibujarObjetoCyber(c, nombre, x, y, s, t){
+function dibujarObjetoCyber(c, nombre, x, y, s, t, op){
   const u = s * 30;
   c.save();
   const cols = { dron: "#22d3ee", chip: "#4ade80", holograma: "#e879f9", moto: "#facc15", corazon_neon: "#ff2e88", rayo: "#facc15", planeta_c: "#e879f9", cohete_c: "#38bdf8", gafas_vr: "#22d3ee", llave_neon: "#facc15", satelite_c: "#94a3b8", celular_c: "#4ade80" };
-  const col = cols[nombre] || "#22d3ee";
+  const col = (op && op.tinte) || cols[nombre] || "#22d3ee";
   c.shadowColor = col; c.shadowBlur = 12 * (u / 30);
   c.strokeStyle = col; c.fillStyle = col; c.lineWidth = Math.max(2.6, u * 0.13); c.lineCap = "round"; c.lineJoin = "round";
   if (nombre === "dron"){ RR(c, x - u * 0.55, y - u * 0.28, u * 1.1, u * 0.56, u * 0.16); c.stroke(); for (const dx of [-1, 1]) for (const dy of [-1, 1]){ c.beginPath(); c.arc(x + dx * u * 0.85, y + dy * u * 0.5, u * 0.3, 0, Math.PI * 2); c.stroke(); } EL(c, x, y, u * 0.16, u * 0.16); c.fill(); }
@@ -4654,17 +4739,48 @@ function renderCyber(c, escena, t, dur){
   c.strokeStyle = "rgba(34,211,238,0.75)"; c.lineWidth = 4; c.strokeRect(8, 8, W - 16, H - 16);
   c.strokeStyle = "rgba(255,46,136,0.45)"; c.lineWidth = 2; c.strokeRect(17, 17, W - 34, H - 34);
   if (escena.rotulo){ c.save(); c.shadowColor = "#22d3ee"; c.shadowBlur = 16; tituloManuscrito(c, escena.rotulo, 100, 76, W * 0.92, "#ffffff"); c.restore(); }
+  const e3d = escena.efecto3d || "";
+  let idxE = 0;
   for (const elem of (escena.elementos || [])){
     if (!elem || (elem.aparece || 0) > t) continue;
-    if (elem.tipo === "personaje"){
-      let x = elem.x, pose = elem.pose || "stand", fase = 0;
-      if (elem.camina){ const p = clamp(t / dur, 0, 1); x = elem.camina.de_x + (elem.camina.a_x - elem.camina.de_x) * p; pose = "walk"; fase = 2 * Math.PI * t / 0.9; }
-      dibujarPersonaCyber(c, x, elem.y, elem.escala || 1, { tipo: elem.personaje || "hacker", expresion: elem.expresion || "contento", pose: mapaPoses[pose] || "pie", fase: fase, t: t });
-    } else if (elem.tipo === "objeto"){
-      dibujarObjetoCyber(c, elem.nombre, elem.x, elem.y, (elem.escala || 1) * Math.max(0.01, escalaConPop(elem, t)), t);
+    idxE++;
+    const dibElem = (dx, tinte, escMul) => {
+      if (elem.tipo === "personaje"){
+        let x = elem.x + dx, pose = elem.pose || "stand", fase = 0;
+        if (elem.camina){ const p = clamp(t / dur, 0, 1); x = elem.camina.de_x + (elem.camina.a_x - elem.camina.de_x) * p + dx; pose = "walk"; fase = 2 * Math.PI * t / 0.9; }
+        dibujarPersonaCyber(c, x, elem.y, (elem.escala || 1) * (escMul || 1), { tipo: elem.personaje || "hacker", expresion: elem.expresion || "contento", pose: mapaPoses[pose] || "pie", fase: fase, t: t, tinte: tinte || null });
+      } else if (elem.tipo === "objeto"){
+        dibujarObjetoCyber(c, elem.nombre, elem.x + dx, elem.y, (elem.escala || 1) * (escMul || 1) * Math.max(0.01, escalaConPop(elem, t)), t, { tinte: tinte || null });
+      }
+    };
+    if (e3d === "anaglifo"){
+      c.save(); c.globalAlpha = 0.5;
+      dibElem(-8, "#ff004c", 1); dibElem(8, "#00e5ff", 1);
+      c.restore(); dibElem(0, null, 1);
+    } else if (e3d === "glitch"){
+      const ventana = (t % 2.7) < 0.14;
+      if (ventana){ c.save(); c.globalAlpha = 0.6; dibElem(-13, "#ff004c", 1); dibElem(13, "#00e5ff", 1); c.restore(); }
+      dibElem(ventana ? 5 : 0, null, 1);
+    } else if (e3d === "pulso3d"){
+      dibElem(0, null, 1 + 0.035 * Math.sin(t * 2.2 + idxE * 1.9));
+    } else {
+      // parallax suave por defecto: cada elemento respira a su propio ritmo
+      dibElem(Math.sin(t * 0.8 + idxE * 1.7) * 3.5, null, 1);
     }
   }
 }
+Object.assign(TIPOS_PERSONAJE, {
+  chica_afro: { pelo: "afro", camisa: "#e67e22", pantalon: "#5a3c78", piel: "#8d5524", falda: true },
+  hombre_afro: { pelo: "afro", camisa: "#2e9e5b", pantalon: "#2b2b3a", piel: "#6b4423" },
+  chico_puntas: { pelo: "puntas", camisa: "#2980b9", pantalon: "#2b2b3a", piel: "#f6c89f" },
+  chica_flequillo: { pelo: "flequillo", camisa: "#c85a82", pantalon: "#5a3c78", piel: "#f6c89f", falda: true },
+  chica_trenza: { pelo: "trenza_una", camisa: "#46a05a", pantalon: "#c85a82", piel: "#f6c89f", falda: true },
+  chico_ondulado: { pelo: "ondulado", camisa: "#7e57c2", pantalon: "#2f6db3", piel: "#c68642" },
+  mujer_ondulada: { pelo: "ondulado", camisa: "#d65a82", pantalon: "#5a3c78", piel: "#f6c89f", falda: true },
+  chico_rapado: { pelo: "rapado", camisa: "#e4572e", pantalon: "#2b2b3a", piel: "#f6c89f" },
+  chica_melena: { pelo: "melenudo", camisa: "#783c8c", pantalon: "#2b2b3a", piel: "#f6c89f", falda: true },
+  chica_chongo: { pelo: "chongo", camisa: "#fac83c", pantalon: "#c85a82", piel: "#ffdbac", falda: true }
+});
 const ESTILOS_TEMATICOS = ["piratas", "superheroes", "dinosaurios", "magia", "mexico", "navidad", "espacio", "egipto", "oeste", "oceano", "medieval"];
 const FONDOS_ESTILO = { piratas: "fondo_piratas", superheroes: "fondo_superheroes", dinosaurios: "fondo_dinosaurios", magia: "fondo_magia", mexico: "fondo_mexico", navidad: "fondo_navidad", espacio: "fondo_espacio_t", egipto: "fondo_egipto", oeste: "fondo_oeste", oceano: "fondo_oceano", medieval: "fondo_medieval" };
 const FONDOS_OSCUROS = { magia: 1, superheroes: 1, navidad: 1, espacio: 1, oceano: 1 };
@@ -5004,10 +5120,10 @@ async function pedirGuion(){
 }
 let promptEstiloAuto = false;
 const ESTILOS_OK = ["aprendiz", "palitos", "letras", "cyberpunk"];
-const PROMPT_EXTRA = "\n\nAMPLIACIÓN DE LA LIBRERÍA (también válidos; úsalos cuando encajen con el tema):\nPERSONAJES NUEVOS: oso_polar, oso_pardo, lobo, ciervo, alce, bisonte, ardilla, erizo, nutria, zorrillo, perezoso, orangutan, mono, cara_mono, toro, bufalo, cabra, oveja, carnero, jabali, caniche, gato_negro, raton, rata, hamster, castor, liebre, gallo, gallina, pollito, paloma, dodo, cuervo, delfin, foca, calamar, langosta, ostra, coral, medusa, cocodrilo, serpiente, lagarto, hormiga, escarabajo, mariquita, grillo, escorpion, mosquito, mosca, gusano, caracol, zombie, vampiro, genio_lampara, angel, diablito, calavera, monstruo, fantasma_e, juez, granjero_e, cocinero_e, mecanico, obrero_fabrica, oficinista, cientifico_e, programador_e, cantante_e, artista_e, piloto, astronauta_e, bombero_e, guardia, santa, senora_claus, rey_e, reina_e, superheroe_e, villano_e, mago_e, persona, hombre_e, mujer_e, nino_e, bebe_e, anciano_e, anciana_e, turbante, sombrero_chino, policia_e, constructor_e, espia, novia, embarazada, bailarin, cantante_rock, chef_mujer, doctora_e, maestra_e, granjera_e, jueza, bombera, pilota, astronauta_m, cientifica_m, mecanica_m, programadora_m, pintora_m, cantante_m, doctor_h, maestro_h, granjero_h, juez_h, bombero_h, piloto_h, astronauta_h, cientifico_h, mecanico_h, programador_h, pintor_h, cocinero_h.\nVARIANTES DE VESTUARIO: cualquier personaje humanoide del catálogo también existe con la ropa de otro color si agregas al nombre uno de estos sufijos: _rojo, _azul, _verde, _rosa, _negro, _amarillo (ejemplo: maestro_rojo, mujer_azul).\nESCENARIOS NUEVOS: pradera, colinas, valle, llanura, sabana, estepa, tundra, glaciar, fiordo, acantilado, canon, meseta, oasis, dunas, salinas, humedal, manglar, bosque_bambu, cerezos, lavanda, girasoles, vinedo, olivar, trigal, maizal, arrozal, cafetal, jardin_zen, patio, callejon, avenida, crucero, estacion, muelle, feria, carnaval, pista_hielo, teatro_aire, cine_aire, parque_barras, cancha, alberca_ext, mercado_ext, bazar, panteon, ruinas, templo, monasterio, observatorio, playa_rocosa, laguna, lago, rio_bosque, arroyo, cenote, cienaga, geiser (cada uno también existe en versión de atardecer y de noche: agrega al nombre el sufijo _atardecer o _noche, por ejemplo pradera_atardecer)\nOBJETOS NUEVOS: elem_oso, elem_lobo, elem_ciervo, elem_alce, elem_bisonte, elem_ardilla, elem_erizo, elem_nutria, elem_perezoso, elem_orangutan, elem_mono, elem_toro, elem_bufalo, elem_cabra, elem_oveja, elem_carnero, elem_jabali, elem_caniche, elem_raton, elem_rata, elem_hamster, elem_castor, elem_liebre, elem_gallo, elem_gallina, elem_pollito, elem_paloma, elem_dodo, elem_cuervo, elem_delfin, elem_foca, elem_calamar, elem_langosta, elem_ostra, elem_coral, elem_medusa, elem_cocodrilo, elem_serpiente, elem_lagarto, elem_hormiga, elem_escarabajo, elem_mariquita, elem_grillo, elem_escorpion, elem_mosquito, elem_mosca, elem_gusano, elem_caracol, elem_rana_verde, fruta_mango, fruta_pina, fruta_kiwi, fruta_coco, fruta_melon, fruta_limon_verde, fruta_arandano, fruta_aceituna, fruta_papaya, verd_jitomate, verd_berenjena, verd_pepino, verd_chile, verd_pimiento, verd_brocoli, verd_lechuga, verd_ajo, verd_cebolla, verd_papa, verd_camote, verd_cacahuate, verd_castana, verd_avellana, verd_jengibre, com_ramen, com_espagueti, com_tamal, com_fondue, com_waffle, com_hotcake, com_bagel, com_croissant, com_pretzel, com_bocadillo, com_kebab, com_falafel, com_empanada, com_tarta, com_flan, com_gelatina, com_raspado, com_dango, com_onigiri, com_arroz_caja, com_curry, com_oden, com_pollo_frito, com_carne_hueso, com_tocino, com_hotdog, com_quesadilla, com_malvavisco, com_paleta_dulce, com_mantequilla, com_salero, com_huevo_cocido, com_pan_frances, beb_te_burbuja, beb_vino, beb_cerveza, beb_tarro_cerveza, beb_coctel, beb_champan, beb_hielo, beb_botella_agua, nat_sol, nat_sol_cara, nat_luna_nueva, nat_luna_creciente, nat_luna_llena_cara, nat_media_luna, nat_estrella_brillante, nat_cometa, nat_via_lactea, nat_planeta_tierra, nat_globo_asia, nat_mapa_mundo, nat_volcan, nat_camping, nat_playa_sombrilla, nat_parque, nat_amanecer, nat_atardecer_sol, nat_puente_noche, nat_noche_estrellas, nat_fuegos_artificiales, nat_vela_fuego, nat_nube_lluvia, nat_nube_rayo, nat_nube_nieve, nat_sol_nube, nat_niebla, nat_ola, nat_gota_mayor, nat_burbujas, nat_termometro, nat_paraguas_lluvia, nat_muneco_nieve, nat_hombre_nieve, nat_pino_navidad, nat_rama, nat_hoja_caida, nat_hoja_maple, nat_hierba, nat_trebol, nat_trebol_cuatro, nat_brote, nat_planta_maceta, nat_flor_blanca, nat_roseton, nat_flor_cerezo, nat_hibisco, nat_ramo, nat_bambu, nat_pina_planta, nat_nido, nat_nido_huevos, nat_piedra, nat_tronco, nat_pluma, casa_puerta, casa_ventana, casa_ducha, casa_bano, casa_inodoro, casa_jabon, casa_esponja, casa_toalla, casa_cepillo_dientes, casa_afeitadora, casa_peine, casa_tijeras_pelo, casa_secadora, casa_plancha, casa_lavadora, casa_desatascador, casa_extintor, casa_lampara, casa_foco2, casa_enchufe, casa_pila_baja, casa_telefono_fijo, casa_fax, casa_camara_video, casa_camara_fotos, casa_camara_flash, casa_filmadora, casa_proyector, casa_claqueta, casa_reloj_pared, casa_cronometro, casa_temporizador, casa_reloj_arena, casa_reloj_pulso, casa_llave2, casa_candado_abierto, casa_cadena, casa_martillo2, casa_hacha, casa_pico, casa_sierra, casa_taladro, casa_nivel, casa_escalera, casa_cuerda, casa_aguja, casa_hilo, casa_dedal, casa_papel_higienico, casa_panuelo, casa_bolsa_compras, casa_carrito, casa_maleta, casa_bolso, casa_monedero, casa_cartera, casa_paraguas, casa_abanco, coc_palillos, coc_plato, coc_vaso_tumbler, coc_lata, esc_libro_rojo, esc_libro_verde, esc_libro_azul, esc_libro_naranja, esc_cuaderno2, esc_libreta, esc_hoja, esc_hoja_notas, esc_pergamino, esc_carta2, esc_lapiz2, esc_pluma, esc_pluma_fuente, esc_marcador, esc_clip2, esc_chincheta, esc_pin, esc_grapadora, esc_archivador, esc_carpeta, esc_carpeta_abierta, esc_calendario2, esc_calendario_arranque, esc_grafico2, esc_grafico_linea, esc_grafico_baja, esc_pizarra, esc_microscopio2, esc_telescopio2, esc_matraz2, esc_adn2, esc_balanza2, esc_globo_mapamundi, esc_mortero, esc_silencio, esc_megafono, esc_altavoz, tec_celular, tec_celular_flecha, tec_computadora, tec_teclado, tec_mouse, tec_pantalla, tec_disco, tec_cd, tec_dvd, tec_chip, tec_robot_cara, tec_videojuego, tec_control, tec_casete, tec_camara_cine, tec_bocina, tec_radio_micro, tec_wifi, tec_satelite, tec_antena, tec_dron, tec_realidad_virtual, tra_coche, tra_coche_rojo, tra_camioneta, tra_trailer, tra_scooter, tra_patin, tra_rueda, tra_gasolinera, tra_senal_stop, tra_construccion, tra_tren_bala, tra_tren_ligero, tra_metro, tra_tranvia, tra_estacion_tren, tra_autobus2, tra_trolebus, tra_avioneta, tra_cohete2, tra_velero, tra_lancha, tra_ferry, tra_canoa, tra_boya, tra_paracaidas, tra_teleferico, tra_funicular, dep_pelota_futbol, dep_balon_basket, dep_softbol, dep_rugby, dep_disco_volador, dep_bumeran, dep_ping_pong, dep_badminton, dep_hockey_hielo, dep_hockey_pasto, dep_cricket, dep_golf, dep_arco, dep_cana_pescar, dep_buceo, dep_snowboard, dep_trineo, dep_curling, dep_yoyo, dep_papalote, dep_cartas, dep_domino, dep_mahjong, dep_puzzle, dep_oso_teddy, dep_canicas, dep_medalla_plata, dep_medalla_bronce, dep_trofeo2, dep_medalla_deportiva, dep_cinta, dep_kimono, dep_meta, mus_nota, mus_notas, mus_saxofon, mus_piano, mus_acordeon, mus_maracas, mus_flauta, mus_arpa, art_marco, art_mascara_teatro, art_ballet, art_malabares, art_circo_carpa, art_rueda_fortuna, art_carrusel, art_montana_rusa, art_cine, art_boleto, art_boleto_cine, rop_camisa, rop_pantalon, rop_vestido, rop_kimono2, rop_sari, rop_bata_lab, rop_chaleco_salvavidas, rop_bufanda, rop_guantes, rop_calcetines, rop_abrigo, rop_bikini, rop_short, rop_traje_bano, rop_zapato, rop_zapatilla, rop_bota, rop_sandalia, rop_tacones, rop_bota_mujer, rop_sombrero, rop_gorra, rop_casco, rop_gafas, rop_gafas_sol, rop_maleta2, rop_collar, rop_labial, rop_esmalte, rop_perfume, sim_corazon_rojo, sim_corazon_naranja, sim_corazon_amarillo, sim_corazon_verde, sim_corazon_azul, sim_corazon_morado, sim_corazon_negro, sim_corazon_blanco, sim_corazon_cafe, sim_corazon_roto, sim_corazon_brillo, sim_corazon_flecha, sim_corazon_regalo, sim_dos_corazones, sim_corazon_late, sim_estrella2, sim_estrella_fugaz, sim_brillo, sim_cien, sim_explosion, sim_gota_sudor, sim_signo_paz, sim_yin_yang, sim_estrella_david, sim_cruz, sim_media_luna_religion, sim_om, sim_rueda_dharma, sim_candelabro, sim_atomo_simbolo, sim_reciclaje, sim_advertencia, sim_prohibido, sim_pregunta, sim_exclamacion, sim_interrogacion, sim_check, sim_equis, sim_mas, sim_menos, sim_por, sim_division, sim_igual, sim_infinito, sim_numero_uno, sim_numero_dos, sim_numero_tres, sim_flecha_arriba, sim_flecha_abajo, sim_flecha_derecha, sim_flecha_izquierda, sim_flecha_curva, sim_recargar, sim_play, sim_pausa, sim_stop, sim_grabar, sim_eject, sim_aleatorio, sim_repetir, sim_circulo_rojo, sim_circulo_naranja, sim_circulo_amarillo, sim_circulo_verde, sim_circulo_azul, sim_circulo_morado, sim_circulo_negro, sim_circulo_blanco, sim_cuadrado_rojo, sim_cuadrado_azul, sim_cuadrado_verde, sim_cuadrado_amarillo, sim_triangulo, sim_rombo, sim_estrella_seis, sim_zodiaco_aries, sim_zodiaco_tauro, sim_zodiaco_geminis, sim_zodiaco_cancer, sim_zodiaco_leo, sim_zodiaco_virgo, sim_zodiaco_libra, sim_zodiaco_escorpio, sim_zodiaco_sagitario, sim_zodiaco_capricornio, sim_zodiaco_acuario, sim_zodiaco_piscis, sim_rey_ajedrez, sim_reina_ajedrez, sim_torre_ajedrez, sim_caballo_ajedrez, sim_alfil_ajedrez, sim_pica, sim_trebol_carta, sim_diamante_carta, sim_corazon_carta, sal_lengua, sal_pulgar_abajo, sal_puno, sal_mano_rock, sal_aplauso, sal_manos_juntas, sal_saludo, sal_escribiendo, sal_pierna, sal_corazon_organo, sal_pulmones, sal_sangre, sal_estetoscopio2, sal_planeta2, sal_luna2, fie_serpentina, fie_regalo2, fie_copas, fie_lampara_papel, fie_petardos, fie_bandera_fiesta, fie_banderines, fie_santa_cara, fie_calabaza, fie_fantasma_halloween, fie_calavera_halloween, fie_conejo_pascua, mag_libro_hechizos, mag_amuleto, mag_moneda_suerte, din_dolar, din_billete_alas, din_grafico_dinero, din_recibo, din_calculadora2, din_correo, din_buzon, din_buzon_lleno, din_periodico, din_revista, din_etiqueta, din_portapapeles, lug_casa2, lug_casa_jardin, lug_edificio, lug_edificio_tienda, lug_hospital2, lug_banco, lug_hotel, lug_escuela2, lug_universidad, lug_iglesia, lug_mezquita, lug_sinagoga, lug_templo_hindu, lug_castillo_japones, lug_estadio2, lug_fuente, lug_estatua_libertad, lug_torre_eiffel, lug_montana_fuji, lug_casa_abandonada, lug_construccion_edificio, lug_fabrica, lug_oficina_correos, lug_tienda, letra_a, letra_b, letra_o, letra_ab, signo_cl, signo_cool, signo_free, signo_id, signo_new, signo_ng, signo_ok, signo_sos, signo_up, signo_vs, reloj_una, reloj_dos, reloj_tres, reloj_cuatro, reloj_cinco, reloj_seis, reloj_siete, reloj_ocho, reloj_nueve, reloj_diez, reloj_once, reloj_doce, luna_gibosa, luna_llena2, luna_menguante, luna_menguante2, luna_ultima, dado_uno, dado_dos, dado_tres, dado_cuatro, dado_cinco, dado_seis, num_cuatro, num_cinco, num_seis, num_siete, num_ocho, num_nueve, num_cero, num_diez, num_numeral, bandera_mexico, bandera_espana, bandera_argentina, bandera_colombia, bandera_chile, bandera_peru, bandera_venezuela, bandera_usa, bandera_canada, bandera_brasil, bandera_francia, bandera_italia, bandera_alemania, bandera_inglaterra, bandera_portugal, bandera_japon, bandera_corea, bandera_china, bandera_india, bandera_australia, bandera_rusia, bandera_ucrania, bandera_polonia, bandera_holanda, bandera_belgica, bandera_suiza, bandera_austria, bandera_suecia, bandera_noruega, bandera_dinamarca, bandera_finlandia, bandera_grecia, bandera_turquia, bandera_egipto, bandera_sudafrica, bandera_nigeria, bandera_kenia, bandera_marruecos, bandera_israel, bandera_arabia, bandera_emiratos, bandera_indonesia, bandera_tailandia, bandera_vietnam, bandera_filipinas, bandera_malasia, bandera_singapur, bandera_nuevazelanda, bandera_irlanda, bandera_chequia, bandera_eslovaquia, bandera_hungria, bandera_rumania, bandera_bulgaria, bandera_croacia, bandera_islandia, bandera_cuba, bandera_dominicana, bandera_guatemala, bandera_honduras, bandera_salvador, bandera_nicaragua, bandera_costarica, bandera_panama, bandera_uruguay, bandera_paraguay, bandera_bolivia, bandera_ecuador, carita_feliz, carita_risa, carita_guinio, carita_enamorada, carita_cool, carita_fiesta, carita_sueno, carita_pensando, carita_explota, carita_triste, carita_enojada, carita_vaquero, carita_nerd, carita_santa, carita_abrazo, dep_surf, dep_natacion, dep_remo, dep_ciclismo_montana, dep_pesas, dep_gimnasia, dep_balonmano, dep_equitation, dep_yoga, dep_escalada, dep_esgrima, dep_waterpolo, dep_lucha, dep_patines_ruedas, com_pastel_luna, com_narutomaki, com_galleta_arroz, com_manzana_roja, com_manzana_verde, nat_espiga, nat_palmera2, nat_arbol_frondoso, nat_nube_sola, nat_rayo_nube, nat_sol_lluvia, elem_flamenco, elem_cisne, elem_loro, elem_pavo, elem_pinguino2, elem_tortuga2, elem_pez_tropical, elem_pez_globo, elem_pulpo2, elem_mariposa2, elem_abeja2, elem_arana2, tra_rickshaw, tra_pickup, tra_parada, tra_carretera, tra_vias, tra_despegue, tra_aterrizaje, casa_elevador, casa_muneca_rusa, casa_munecas_jp, casa_banderin_pez, casa_campana_viento, sim_flor_lis, sim_tridente, sim_mano_hamsa, sim_bano, sim_hombre_bano, sim_mujer_bano, sim_bebe_bano, sim_accesible, sim_parqueo, sim_pasaporte, sim_aduana, sim_equipaje, sim_equipaje_guardado, sim_brillo_bajo, sim_brillo_alto, sim_circulo_grande, sim_enojo, sim_suenio_z, sim_estrella_mareo, flecha_arriba_der, flecha_abajo_der, flecha_abajo_izq, flecha_arriba_izq, flecha_doble_vertical, flecha_doble_horizontal, flecha_retorno_der.";
-const PROMPT_PALITOS = "Estilo: PALITOS — monigotes de palitos blancos sobre fondo negro, como los videos de explicación rápida. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"palitos\", \"musica\": true, \"escenas\": [{\"rotulo\": \"TÍTULO CORTO\", \"narracion\": \"...\", \"escenario\": \"campo_pal\", \"elementos\": [{\"tipo\": \"personaje\", \"personaje\": \"maestro\", \"x\": 360, \"y\": 1080, \"escala\": 1, \"pose\": \"pie\", \"expresion\": \"contento\"}]}]}\nREGLAS: cada narración cuenta algo nuevo y concreto del tema, en frases completas (de 6 a 10 segundos al leerse). Lienzo 720x1280: personajes con y=1080 y x entre 120 y 600. Poses: pie, saludando, senalando, sentado, caminando (para caminar agrega \"camina\": {\"de_x\": 120, \"a_x\": 600}). Expresiones: contento, preocupado, sorprendido, pensando.\nESCENARIOS (líneas blancas sobre negro): negro, campo_pal, calle_pal, cuarto_pal, playa_pal, espacio_pal, bosque_pal, escuela_pal.\nPERSONAJES: hombre, mujer, maestro, maestra, nino, nina, anciano, robot, fantasma, pirata_pal.\nOBJETOS (iconos de línea): {\"tipo\": \"objeto\", \"nombre\": \"foco\", \"x\": 360, \"y\": 500, \"escala\": 1} — nombres: foco, libro, pelota, corazon, estrella, luna, sol, flecha, casa, arbol, flor, pez, pajaro, nota, llave, regalo, trofeo, pregunta, reloj.\nUsa de 4 a 7 escenas. Sin emojis en los textos.";
-const PROMPT_LETRAS = "Estilo: LETRAS — SIN muñecos ni dibujos: solo tipografía grande animada, con transiciones entre escenas. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"letras\", \"musica\": true, \"escenas\": [{\"narracion\": \"...\", \"texto\": \"Frase corta en pantalla\", \"clave\": \"palabra\", \"efecto\": \"tecleo\", \"fondo\": \"negro\"}]}\nREGLAS: la narración cuenta el tema con hechos concretos, en frases completas (de 6 a 10 segundos al leerse). El campo \"texto\" es lo que se VE en pantalla: una frase corta e impactante de 2 a 6 palabras que resume la idea de esa narración. \"clave\" es UNA palabra que aparece tal cual dentro del texto y se pinta en amarillo. Efectos: tecleo (se escribe letra a letra), zoom, barrido, olas, rebote, brillo, desvanecer. Fondos: negro, morado, azul, rojo, verde, atardecer. Varía efectos y fondos entre escenas. Usa de 4 a 7 escenas. Nada de personajes, objetos ni escenarios.";
-const PROMPT_CYBER = "Estilo: CYBERPUNK — ciudad neón oscura, personajes con visores y brillos de neón. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"cyberpunk\", \"musica\": true, \"escenas\": [{\"rotulo\": \"TÍTULO CORTO\", \"narracion\": \"...\", \"escenario\": \"ciudad_neon\", \"elementos\": [{\"tipo\": \"personaje\", \"personaje\": \"hacker\", \"x\": 360, \"y\": 1080, \"escala\": 1, \"pose\": \"pie\", \"expresion\": \"contento\"}]}]}\nREGLAS: cada narración cuenta algo nuevo y concreto del tema, en frases completas (de 6 a 10 segundos al leerse). Lienzo 720x1280: personajes con y=1080 y x entre 120 y 600. Poses: pie, saludando, senalando, sentado, caminando (con \"camina\": {\"de_x\": 120, \"a_x\": 600}). Expresiones: contento, preocupado, sorprendido, pensando.\nESCENARIOS: ciudad_neon, calle_neon, cuarto_neon, taller_neon, espacio_neon, bosque_neon, mercado_neon.\nPERSONAJES: hacker, androide, piloto_c, detective_c, robot_c, ninja_c, cientifica_c, dj_c.\nOBJETOS neón: {\"tipo\": \"objeto\", \"nombre\": \"dron\", \"x\": 360, \"y\": 500, \"escala\": 1} — nombres: dron, chip, holograma, moto, corazon_neon, rayo, planeta_c, cohete_c, gafas_vr, llave_neon, satelite_c, celular_c.\nUsa de 4 a 7 escenas. Sin emojis en los textos.";
+const PROMPT_EXTRA = "\n\nAMPLIACIÓN DE LA LIBRERÍA (también válidos; úsalos cuando encajen con el tema):\nPERSONAJES NUEVOS: chica_afro, hombre_afro, chico_puntas, chica_flequillo, chica_trenza, chico_ondulado, mujer_ondulada, chico_rapado, chica_melena, chica_chongo, oso_polar, oso_pardo, lobo, ciervo, alce, bisonte, ardilla, erizo, nutria, zorrillo, perezoso, orangutan, mono, cara_mono, toro, bufalo, cabra, oveja, carnero, jabali, caniche, gato_negro, raton, rata, hamster, castor, liebre, gallo, gallina, pollito, paloma, dodo, cuervo, delfin, foca, calamar, langosta, ostra, coral, medusa, cocodrilo, serpiente, lagarto, hormiga, escarabajo, mariquita, grillo, escorpion, mosquito, mosca, gusano, caracol, zombie, vampiro, genio_lampara, angel, diablito, calavera, monstruo, fantasma_e, juez, granjero_e, cocinero_e, mecanico, obrero_fabrica, oficinista, cientifico_e, programador_e, cantante_e, artista_e, piloto, astronauta_e, bombero_e, guardia, santa, senora_claus, rey_e, reina_e, superheroe_e, villano_e, mago_e, persona, hombre_e, mujer_e, nino_e, bebe_e, anciano_e, anciana_e, turbante, sombrero_chino, policia_e, constructor_e, espia, novia, embarazada, bailarin, cantante_rock, chef_mujer, doctora_e, maestra_e, granjera_e, jueza, bombera, pilota, astronauta_m, cientifica_m, mecanica_m, programadora_m, pintora_m, cantante_m, doctor_h, maestro_h, granjero_h, juez_h, bombero_h, piloto_h, astronauta_h, cientifico_h, mecanico_h, programador_h, pintor_h, cocinero_h.\nVARIANTES DE VESTUARIO: cualquier personaje humanoide del catálogo también existe con la ropa de otro color si agregas al nombre uno de estos sufijos: _rojo, _azul, _verde, _rosa, _negro, _amarillo (ejemplo: maestro_rojo, mujer_azul).\nESCENARIOS NUEVOS: pradera, colinas, valle, llanura, sabana, estepa, tundra, glaciar, fiordo, acantilado, canon, meseta, oasis, dunas, salinas, humedal, manglar, bosque_bambu, cerezos, lavanda, girasoles, vinedo, olivar, trigal, maizal, arrozal, cafetal, jardin_zen, patio, callejon, avenida, crucero, estacion, muelle, feria, carnaval, pista_hielo, teatro_aire, cine_aire, parque_barras, cancha, alberca_ext, mercado_ext, bazar, panteon, ruinas, templo, monasterio, observatorio, playa_rocosa, laguna, lago, rio_bosque, arroyo, cenote, cienaga, geiser (cada uno también existe en versión de atardecer y de noche: agrega al nombre el sufijo _atardecer o _noche, por ejemplo pradera_atardecer)\nOBJETOS NUEVOS: elem_oso, elem_lobo, elem_ciervo, elem_alce, elem_bisonte, elem_ardilla, elem_erizo, elem_nutria, elem_perezoso, elem_orangutan, elem_mono, elem_toro, elem_bufalo, elem_cabra, elem_oveja, elem_carnero, elem_jabali, elem_caniche, elem_raton, elem_rata, elem_hamster, elem_castor, elem_liebre, elem_gallo, elem_gallina, elem_pollito, elem_paloma, elem_dodo, elem_cuervo, elem_delfin, elem_foca, elem_calamar, elem_langosta, elem_ostra, elem_coral, elem_medusa, elem_cocodrilo, elem_serpiente, elem_lagarto, elem_hormiga, elem_escarabajo, elem_mariquita, elem_grillo, elem_escorpion, elem_mosquito, elem_mosca, elem_gusano, elem_caracol, elem_rana_verde, fruta_mango, fruta_pina, fruta_kiwi, fruta_coco, fruta_melon, fruta_limon_verde, fruta_arandano, fruta_aceituna, fruta_papaya, verd_jitomate, verd_berenjena, verd_pepino, verd_chile, verd_pimiento, verd_brocoli, verd_lechuga, verd_ajo, verd_cebolla, verd_papa, verd_camote, verd_cacahuate, verd_castana, verd_avellana, verd_jengibre, com_ramen, com_espagueti, com_tamal, com_fondue, com_waffle, com_hotcake, com_bagel, com_croissant, com_pretzel, com_bocadillo, com_kebab, com_falafel, com_empanada, com_tarta, com_flan, com_gelatina, com_raspado, com_dango, com_onigiri, com_arroz_caja, com_curry, com_oden, com_pollo_frito, com_carne_hueso, com_tocino, com_hotdog, com_quesadilla, com_malvavisco, com_paleta_dulce, com_mantequilla, com_salero, com_huevo_cocido, com_pan_frances, beb_te_burbuja, beb_vino, beb_cerveza, beb_tarro_cerveza, beb_coctel, beb_champan, beb_hielo, beb_botella_agua, nat_sol, nat_sol_cara, nat_luna_nueva, nat_luna_creciente, nat_luna_llena_cara, nat_media_luna, nat_estrella_brillante, nat_cometa, nat_via_lactea, nat_planeta_tierra, nat_globo_asia, nat_mapa_mundo, nat_volcan, nat_camping, nat_playa_sombrilla, nat_parque, nat_amanecer, nat_atardecer_sol, nat_puente_noche, nat_noche_estrellas, nat_fuegos_artificiales, nat_vela_fuego, nat_nube_lluvia, nat_nube_rayo, nat_nube_nieve, nat_sol_nube, nat_niebla, nat_ola, nat_gota_mayor, nat_burbujas, nat_termometro, nat_paraguas_lluvia, nat_muneco_nieve, nat_hombre_nieve, nat_pino_navidad, nat_rama, nat_hoja_caida, nat_hoja_maple, nat_hierba, nat_trebol, nat_trebol_cuatro, nat_brote, nat_planta_maceta, nat_flor_blanca, nat_roseton, nat_flor_cerezo, nat_hibisco, nat_ramo, nat_bambu, nat_pina_planta, nat_nido, nat_nido_huevos, nat_piedra, nat_tronco, nat_pluma, casa_puerta, casa_ventana, casa_ducha, casa_bano, casa_inodoro, casa_jabon, casa_esponja, casa_toalla, casa_cepillo_dientes, casa_afeitadora, casa_peine, casa_tijeras_pelo, casa_secadora, casa_plancha, casa_lavadora, casa_desatascador, casa_extintor, casa_lampara, casa_foco2, casa_enchufe, casa_pila_baja, casa_telefono_fijo, casa_fax, casa_camara_video, casa_camara_fotos, casa_camara_flash, casa_filmadora, casa_proyector, casa_claqueta, casa_reloj_pared, casa_cronometro, casa_temporizador, casa_reloj_arena, casa_reloj_pulso, casa_llave2, casa_candado_abierto, casa_cadena, casa_martillo2, casa_hacha, casa_pico, casa_sierra, casa_taladro, casa_nivel, casa_escalera, casa_cuerda, casa_aguja, casa_hilo, casa_dedal, casa_papel_higienico, casa_panuelo, casa_bolsa_compras, casa_carrito, casa_maleta, casa_bolso, casa_monedero, casa_cartera, casa_paraguas, casa_abanco, coc_palillos, coc_plato, coc_vaso_tumbler, coc_lata, esc_libro_rojo, esc_libro_verde, esc_libro_azul, esc_libro_naranja, esc_cuaderno2, esc_libreta, esc_hoja, esc_hoja_notas, esc_pergamino, esc_carta2, esc_lapiz2, esc_pluma, esc_pluma_fuente, esc_marcador, esc_clip2, esc_chincheta, esc_pin, esc_grapadora, esc_archivador, esc_carpeta, esc_carpeta_abierta, esc_calendario2, esc_calendario_arranque, esc_grafico2, esc_grafico_linea, esc_grafico_baja, esc_pizarra, esc_microscopio2, esc_telescopio2, esc_matraz2, esc_adn2, esc_balanza2, esc_globo_mapamundi, esc_mortero, esc_silencio, esc_megafono, esc_altavoz, tec_celular, tec_celular_flecha, tec_computadora, tec_teclado, tec_mouse, tec_pantalla, tec_disco, tec_cd, tec_dvd, tec_chip, tec_robot_cara, tec_videojuego, tec_control, tec_casete, tec_camara_cine, tec_bocina, tec_radio_micro, tec_wifi, tec_satelite, tec_antena, tec_dron, tec_realidad_virtual, tra_coche, tra_coche_rojo, tra_camioneta, tra_trailer, tra_scooter, tra_patin, tra_rueda, tra_gasolinera, tra_senal_stop, tra_construccion, tra_tren_bala, tra_tren_ligero, tra_metro, tra_tranvia, tra_estacion_tren, tra_autobus2, tra_trolebus, tra_avioneta, tra_cohete2, tra_velero, tra_lancha, tra_ferry, tra_canoa, tra_boya, tra_paracaidas, tra_teleferico, tra_funicular, dep_pelota_futbol, dep_balon_basket, dep_softbol, dep_rugby, dep_disco_volador, dep_bumeran, dep_ping_pong, dep_badminton, dep_hockey_hielo, dep_hockey_pasto, dep_cricket, dep_golf, dep_arco, dep_cana_pescar, dep_buceo, dep_snowboard, dep_trineo, dep_curling, dep_yoyo, dep_papalote, dep_cartas, dep_domino, dep_mahjong, dep_puzzle, dep_oso_teddy, dep_canicas, dep_medalla_plata, dep_medalla_bronce, dep_trofeo2, dep_medalla_deportiva, dep_cinta, dep_kimono, dep_meta, mus_nota, mus_notas, mus_saxofon, mus_piano, mus_acordeon, mus_maracas, mus_flauta, mus_arpa, art_marco, art_mascara_teatro, art_ballet, art_malabares, art_circo_carpa, art_rueda_fortuna, art_carrusel, art_montana_rusa, art_cine, art_boleto, art_boleto_cine, rop_camisa, rop_pantalon, rop_vestido, rop_kimono2, rop_sari, rop_bata_lab, rop_chaleco_salvavidas, rop_bufanda, rop_guantes, rop_calcetines, rop_abrigo, rop_bikini, rop_short, rop_traje_bano, rop_zapato, rop_zapatilla, rop_bota, rop_sandalia, rop_tacones, rop_bota_mujer, rop_sombrero, rop_gorra, rop_casco, rop_gafas, rop_gafas_sol, rop_maleta2, rop_collar, rop_labial, rop_esmalte, rop_perfume, sim_corazon_rojo, sim_corazon_naranja, sim_corazon_amarillo, sim_corazon_verde, sim_corazon_azul, sim_corazon_morado, sim_corazon_negro, sim_corazon_blanco, sim_corazon_cafe, sim_corazon_roto, sim_corazon_brillo, sim_corazon_flecha, sim_corazon_regalo, sim_dos_corazones, sim_corazon_late, sim_estrella2, sim_estrella_fugaz, sim_brillo, sim_cien, sim_explosion, sim_gota_sudor, sim_signo_paz, sim_yin_yang, sim_estrella_david, sim_cruz, sim_media_luna_religion, sim_om, sim_rueda_dharma, sim_candelabro, sim_atomo_simbolo, sim_reciclaje, sim_advertencia, sim_prohibido, sim_pregunta, sim_exclamacion, sim_interrogacion, sim_check, sim_equis, sim_mas, sim_menos, sim_por, sim_division, sim_igual, sim_infinito, sim_numero_uno, sim_numero_dos, sim_numero_tres, sim_flecha_arriba, sim_flecha_abajo, sim_flecha_derecha, sim_flecha_izquierda, sim_flecha_curva, sim_recargar, sim_play, sim_pausa, sim_stop, sim_grabar, sim_eject, sim_aleatorio, sim_repetir, sim_circulo_rojo, sim_circulo_naranja, sim_circulo_amarillo, sim_circulo_verde, sim_circulo_azul, sim_circulo_morado, sim_circulo_negro, sim_circulo_blanco, sim_cuadrado_rojo, sim_cuadrado_azul, sim_cuadrado_verde, sim_cuadrado_amarillo, sim_triangulo, sim_rombo, sim_estrella_seis, sim_zodiaco_aries, sim_zodiaco_tauro, sim_zodiaco_geminis, sim_zodiaco_cancer, sim_zodiaco_leo, sim_zodiaco_virgo, sim_zodiaco_libra, sim_zodiaco_escorpio, sim_zodiaco_sagitario, sim_zodiaco_capricornio, sim_zodiaco_acuario, sim_zodiaco_piscis, sim_rey_ajedrez, sim_reina_ajedrez, sim_torre_ajedrez, sim_caballo_ajedrez, sim_alfil_ajedrez, sim_pica, sim_trebol_carta, sim_diamante_carta, sim_corazon_carta, sal_lengua, sal_pulgar_abajo, sal_puno, sal_mano_rock, sal_aplauso, sal_manos_juntas, sal_saludo, sal_escribiendo, sal_pierna, sal_corazon_organo, sal_pulmones, sal_sangre, sal_estetoscopio2, sal_planeta2, sal_luna2, fie_serpentina, fie_regalo2, fie_copas, fie_lampara_papel, fie_petardos, fie_bandera_fiesta, fie_banderines, fie_santa_cara, fie_calabaza, fie_fantasma_halloween, fie_calavera_halloween, fie_conejo_pascua, mag_libro_hechizos, mag_amuleto, mag_moneda_suerte, din_dolar, din_billete_alas, din_grafico_dinero, din_recibo, din_calculadora2, din_correo, din_buzon, din_buzon_lleno, din_periodico, din_revista, din_etiqueta, din_portapapeles, lug_casa2, lug_casa_jardin, lug_edificio, lug_edificio_tienda, lug_hospital2, lug_banco, lug_hotel, lug_escuela2, lug_universidad, lug_iglesia, lug_mezquita, lug_sinagoga, lug_templo_hindu, lug_castillo_japones, lug_estadio2, lug_fuente, lug_estatua_libertad, lug_torre_eiffel, lug_montana_fuji, lug_casa_abandonada, lug_construccion_edificio, lug_fabrica, lug_oficina_correos, lug_tienda, letra_a, letra_b, letra_o, letra_ab, signo_cl, signo_cool, signo_free, signo_id, signo_new, signo_ng, signo_ok, signo_sos, signo_up, signo_vs, reloj_una, reloj_dos, reloj_tres, reloj_cuatro, reloj_cinco, reloj_seis, reloj_siete, reloj_ocho, reloj_nueve, reloj_diez, reloj_once, reloj_doce, luna_gibosa, luna_llena2, luna_menguante, luna_menguante2, luna_ultima, dado_uno, dado_dos, dado_tres, dado_cuatro, dado_cinco, dado_seis, num_cuatro, num_cinco, num_seis, num_siete, num_ocho, num_nueve, num_cero, num_diez, num_numeral, bandera_mexico, bandera_espana, bandera_argentina, bandera_colombia, bandera_chile, bandera_peru, bandera_venezuela, bandera_usa, bandera_canada, bandera_brasil, bandera_francia, bandera_italia, bandera_alemania, bandera_inglaterra, bandera_portugal, bandera_japon, bandera_corea, bandera_china, bandera_india, bandera_australia, bandera_rusia, bandera_ucrania, bandera_polonia, bandera_holanda, bandera_belgica, bandera_suiza, bandera_austria, bandera_suecia, bandera_noruega, bandera_dinamarca, bandera_finlandia, bandera_grecia, bandera_turquia, bandera_egipto, bandera_sudafrica, bandera_nigeria, bandera_kenia, bandera_marruecos, bandera_israel, bandera_arabia, bandera_emiratos, bandera_indonesia, bandera_tailandia, bandera_vietnam, bandera_filipinas, bandera_malasia, bandera_singapur, bandera_nuevazelanda, bandera_irlanda, bandera_chequia, bandera_eslovaquia, bandera_hungria, bandera_rumania, bandera_bulgaria, bandera_croacia, bandera_islandia, bandera_cuba, bandera_dominicana, bandera_guatemala, bandera_honduras, bandera_salvador, bandera_nicaragua, bandera_costarica, bandera_panama, bandera_uruguay, bandera_paraguay, bandera_bolivia, bandera_ecuador, carita_feliz, carita_risa, carita_guinio, carita_enamorada, carita_cool, carita_fiesta, carita_sueno, carita_pensando, carita_explota, carita_triste, carita_enojada, carita_vaquero, carita_nerd, carita_santa, carita_abrazo, dep_surf, dep_natacion, dep_remo, dep_ciclismo_montana, dep_pesas, dep_gimnasia, dep_balonmano, dep_equitation, dep_yoga, dep_escalada, dep_esgrima, dep_waterpolo, dep_lucha, dep_patines_ruedas, com_pastel_luna, com_narutomaki, com_galleta_arroz, com_manzana_roja, com_manzana_verde, nat_espiga, nat_palmera2, nat_arbol_frondoso, nat_nube_sola, nat_rayo_nube, nat_sol_lluvia, elem_flamenco, elem_cisne, elem_loro, elem_pavo, elem_pinguino2, elem_tortuga2, elem_pez_tropical, elem_pez_globo, elem_pulpo2, elem_mariposa2, elem_abeja2, elem_arana2, tra_rickshaw, tra_pickup, tra_parada, tra_carretera, tra_vias, tra_despegue, tra_aterrizaje, casa_elevador, casa_muneca_rusa, casa_munecas_jp, casa_banderin_pez, casa_campana_viento, sim_flor_lis, sim_tridente, sim_mano_hamsa, sim_bano, sim_hombre_bano, sim_mujer_bano, sim_bebe_bano, sim_accesible, sim_parqueo, sim_pasaporte, sim_aduana, sim_equipaje, sim_equipaje_guardado, sim_brillo_bajo, sim_brillo_alto, sim_circulo_grande, sim_enojo, sim_suenio_z, sim_estrella_mareo, flecha_arriba_der, flecha_abajo_der, flecha_abajo_izq, flecha_arriba_izq, flecha_doble_vertical, flecha_doble_horizontal, flecha_retorno_der.";
+const PROMPT_PALITOS = "Estilo: PALITOS — monigotes de palitos blancos sobre fondo negro, como los videos de explicación rápida. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"palitos\", \"musica\": true, \"escenas\": [{\"rotulo\": \"TÍTULO CORTO\", \"narracion\": \"...\", \"escenario\": \"campo_pal\", \"elementos\": [{\"tipo\": \"personaje\", \"personaje\": \"maestro\", \"x\": 360, \"y\": 1080, \"escala\": 1, \"pose\": \"pie\", \"expresion\": \"contento\"}]}]}\nREGLAS: cada narración cuenta algo nuevo y concreto del tema, en frases completas (de 6 a 10 segundos al leerse). Lienzo 720x1280: personajes con y=1080 y x entre 120 y 600. Poses: pie, saludando, senalando, sentado, saltando, corriendo, bailando, pensando, celebrando, leyendo, caminando (para caminar agrega \"camina\": {\"de_x\": 120, \"a_x\": 600}). Expresiones: contento, preocupado, sorprendido, pensando.\nESCENARIOS (líneas blancas sobre negro): negro, campo_pal, calle_pal, cuarto_pal, playa_pal, espacio_pal, bosque_pal, escuela_pal.\nPERSONAJES: hombre, mujer, maestro, maestra, nino, nina, anciano, robot, fantasma, pirata_pal.\nOBJETOS (iconos de línea): {\"tipo\": \"objeto\", \"nombre\": \"foco\", \"x\": 360, \"y\": 500, \"escala\": 1} — nombres: foco, libro, pelota, corazon, estrella, luna, sol, flecha, casa, arbol, flor, pez, pajaro, nota, llave, regalo, trofeo, pregunta, reloj.\nUsa de 4 a 7 escenas. Sin emojis en los textos.";
+const PROMPT_LETRAS = "Estilo: LETRAS — SIN muñecos ni dibujos: solo tipografía grande animada, con transiciones entre escenas. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"letras\", \"musica\": true, \"escenas\": [{\"narracion\": \"...\", \"texto\": \"Frase corta en pantalla\", \"clave\": \"palabra\", \"efecto\": \"tecleo\", \"fondo\": \"negro\"}]}\nREGLAS: la narración cuenta el tema con hechos concretos, en frases completas (de 6 a 10 segundos al leerse). El campo \"texto\" es lo que se VE en pantalla: una frase corta e impactante de 2 a 6 palabras que resume la idea de esa narración. \"clave\" es UNA palabra que aparece tal cual dentro del texto y se pinta en amarillo. Efectos: tecleo (se escribe letra a letra), zoom, barrido, olas, rebote, brillo, neon (resplandor de neón que cambia de color), glitch (copias roja y cian que se desplazan), cascada (las letras caen de arriba), giro (las letras entran girando), desvanecer. Además cada escena lleva \"transicion\": \"fundido\", \"barrido\", \"zoom\" o \"glitch\", y debe variar entre escenas. Fondos: negro, morado, azul, rojo, verde, atardecer. Varía efectos y fondos entre escenas. Usa de 4 a 7 escenas. Nada de personajes, objetos ni escenarios.";
+const PROMPT_CYBER = "Estilo: CYBERPUNK — ciudad neón oscura, personajes con visores y brillos de neón. Este estilo tiene sus propios recursos; no uses nada de otros estilos.\nDevuelve SOLO un JSON con esta forma: {\"titulo\": \"...\", \"estilo\": \"cyberpunk\", \"musica\": true, \"escenas\": [{\"rotulo\": \"TÍTULO CORTO\", \"narracion\": \"...\", \"escenario\": \"ciudad_neon\", \"elementos\": [{\"tipo\": \"personaje\", \"personaje\": \"hacker\", \"x\": 360, \"y\": 1080, \"escala\": 1, \"pose\": \"pie\", \"expresion\": \"contento\"}]}]}\nREGLAS: cada narración cuenta algo nuevo y concreto del tema, en frases completas (de 6 a 10 segundos al leerse). Lienzo 720x1280: personajes con y=1080 y x entre 120 y 600. Poses: pie, saludando, senalando, sentado, caminando (con \"camina\": {\"de_x\": 120, \"a_x\": 600}). Expresiones: contento, preocupado, sorprendido, pensando.\nCada escena puede llevar \"efecto3d\": \"anaglifo\" (fantasmas rojo y cian, efecto 3D con lentes), \"pulso3d\" (los elementos laten en profundidad), \"glitch\" (destellos estereoscópicos) o ir sin el campo (parallax suave). Úsalo en algunas escenas, no en todas.\nESCENARIOS: ciudad_neon, calle_neon, cuarto_neon, taller_neon, espacio_neon, bosque_neon, mercado_neon.\nPERSONAJES: hacker, androide, piloto_c, detective_c, robot_c, ninja_c, cientifica_c, dj_c.\nOBJETOS neón: {\"tipo\": \"objeto\", \"nombre\": \"dron\", \"x\": 360, \"y\": 500, \"escala\": 1} — nombres: dron, chip, holograma, moto, corazon_neon, rayo, planeta_c, cohete_c, gafas_vr, llave_neon, satelite_c, celular_c.\nUsa de 4 a 7 escenas. Sin emojis en los textos.";
 function construirPrompt(){
   const tema = $("tema").value.trim();
   const contenido = $("contenido").value.trim();
@@ -5178,8 +5294,8 @@ function setProgresoRapido(pct, texto){
   $("info-rapido").textContent = texto;
 }
 /* ---------- v29: selector de estilos del modo rápido ---------- */
-let estiloRapidoSel = "auto";
-const CHIPS_ESTILO = [["auto", "✨ Automático"], ["aprendiz", "🎓 Aprendiz"], ["palitos", "✏️ Palitos"], ["letras", "🔤 Letras"], ["cyberpunk", "🌆 Cyberpunk"]];
+let estiloRapidoSel = "aprendiz";
+const CHIPS_ESTILO = [["aprendiz", "🎓 Aprendiz"], ["palitos", "✏️ Palitos"], ["letras", "🔤 Letras"], ["cyberpunk", "🌆 Cyberpunk"]];
 (function construirChipsEstilo(){
   const caja = document.getElementById("chips-estilo");
   if (!caja) return;
@@ -5208,8 +5324,7 @@ async function crearVideoRapido(){
     est.className = "estado error"; return;
   }
   // El prompt es el tema y el contenido: se reutiliza el constructor existente.
-  if (estiloRapidoSel === "auto"){ promptEstiloAuto = true; $("estilo").value = "aprendiz"; }
-  else { promptEstiloAuto = false; $("estilo").value = estiloRapidoSel; }
+  promptEstiloAuto = false; $("estilo").value = estiloRapidoSel;
   $("duracion").value = "60";
   $("tema").value = prompt;
   $("contenido").value = prompt;
@@ -5403,7 +5518,8 @@ function renderEditor(){
     if (spec.estilo === "letras"){
       card.appendChild(campoTexto("Texto en pantalla", esc.texto, v => { esc.texto = v; dibujarFotograma(tiempoActual); }));
       card.appendChild(campoTexto("Palabra clave (amarillo)", esc.clave, v => { esc.clave = v; dibujarFotograma(tiempoActual); }));
-      card.appendChild(campoSelect("Efecto", [["tecleo", "Tecleo"], ["zoom", "Zoom"], ["barrido", "Barrido"], ["olas", "Olas"], ["rebote", "Rebote"], ["brillo", "Brillo"], ["desvanecer", "Desvanecer"]], esc.efecto || "zoom", v => { esc.efecto = v; dibujarFotograma(tiempoActual); }));
+      card.appendChild(campoSelect("Efecto", [["tecleo", "Tecleo"], ["zoom", "Zoom"], ["barrido", "Barrido"], ["olas", "Olas"], ["rebote", "Rebote"], ["brillo", "Brillo"], ["neon", "Neón"], ["glitch", "Glitch"], ["cascada", "Cascada"], ["giro", "Giro"], ["desvanecer", "Desvanecer"]], esc.efecto || "zoom", v => { esc.efecto = v; dibujarFotograma(tiempoActual); }));
+      card.appendChild(campoSelect("Transición", [["fundido", "Fundido a negro"], ["barrido", "Barrido amarillo"], ["zoom", "Zoom del fondo"], ["glitch", "Glitch"]], esc.transicion || "fundido", v => { esc.transicion = v; dibujarFotograma(tiempoActual); }));
       card.appendChild(campoSelect("Fondo", [["negro", "Negro"], ["morado", "Morado"], ["azul", "Azul"], ["rojo", "Rojo"], ["verde", "Verde"], ["atardecer", "Atardecer"]], esc.fondo || "negro", v => { esc.fondo = v; dibujarFotograma(tiempoActual); }));
     } else if (esAprendiz(spec.estilo) || spec.estilo === "palitos" || spec.estilo === "cyberpunk"){
       card.appendChild(campoTexto("Rótulo (en pantalla)", esc.rotulo, v => { esc.rotulo = v; dibujarFotograma(tiempoActual); }));
@@ -5411,6 +5527,7 @@ function renderEditor(){
         : spec.estilo === "cyberpunk" ? [["", "Ciudad neón (base)"], ...Object.keys(ESCENARIOS_CYBER).map(k => [k, k])]
         : [["", "Sin escenario (fondo blanco)"], ...Object.keys(ESCENARIOS_INFO).map(k => [k, ESCENARIOS_INFO[k][0]])];
       card.appendChild(campoSelect("Escenario", escOpts, esc.escenario || "", v => { esc.escenario = v || undefined; dibujarFotograma(tiempoActual); }));
+      if (spec.estilo === "cyberpunk") card.appendChild(campoSelect("Efecto 3D", [["", "Parallax suave"], ["anaglifo", "Anaglifo (rojo/cian)"], ["pulso3d", "Pulso 3D"], ["glitch", "Glitch estereoscópico"]], esc.efecto3d || "", v => { esc.efecto3d = v || undefined; dibujarFotograma(tiempoActual); }));
       if (esAprendiz(spec.estilo)) card.appendChild(bloqueImagenAPI(esc));
     } else {
       card.appendChild(campoSelect("Tipo de escena", [["portada", "Portada"], ["intro", "Intro"], ["tarjeta", "Tarjeta"], ["definicion", "Definición"], ["fundido", "Fundido"]], esc.tipo || "definicion", v => { esc.tipo = v; dibujarFotograma(tiempoActual); }));
